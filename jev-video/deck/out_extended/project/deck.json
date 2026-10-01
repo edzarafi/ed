@@ -2,10 +2,10 @@
  "v": 4,
  "createdOnFiles": {
   "v": 1,
-  "at": "2026-10-01T11:31:54Z"
+  "at": "2026-10-01T11:33:53Z"
  },
  "lists": "css",
- "title": "Jev — מודל System One",
+ "title": "Jev — גרסה מורחבת: מסמכים רפואיים",
  "order": [
   "cover",
   "hook",
@@ -27,6 +27,22 @@
   "ex-agent",
   "ex-content",
   "ex-ops",
+  "med-divider",
+  "med-hard",
+  "med-arch",
+  "med-why",
+  "med-docs",
+  "med-sample",
+  "med-s1",
+  "med-s2",
+  "med-s2out",
+  "med-s3",
+  "med-case-ct",
+  "med-case-dose",
+  "med-routing",
+  "med-cost",
+  "med-run",
+  "med-caveats",
   "reality",
   "limits",
   "choose",
@@ -50,6 +66,10 @@
   "s4": {
    "description": "מציאות, מגבלות ומתי לבחור בו",
    "start": "reality"
+  },
+  "s3b": {
+   "description": "מסמכים רפואיים: Jev מסווג, Claude מחלץ, Jev מאמת",
+   "start": "med-divider"
   }
  },
  "faces": {

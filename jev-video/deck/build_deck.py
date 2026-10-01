@@ -4,7 +4,6 @@ RLI…PDI (U+2067/U+2069) to lay it out right-to-left inside the block."""
 import json, os, re, datetime
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out", "project")
-os.makedirs(os.path.join(OUT, "slides"), exist_ok=True)
 
 BG, BG2, INK, MUTED = "#0E1024", "#161937", "#F6F1EA", "#B4B7CF"
 PINK, PINKL, LLM, OK, BAD = "#FF4F93", "#FF9BC2", "#8C96FF", "#46D99B", "#FF7A88"
@@ -33,7 +32,7 @@ def section(sid, body, notes, bg=BG, color=INK, footer=True, layout=None, transi
     foot = ""
     if footer:
         foot = (f'<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:{DIM};'
-                f'font-family:{LAT};text-align:left">Jev · TypeSafe AI   |   {N[0]}</p>')
+                f'font-family:{LAT};text-align:left">Jev · TypeSafe AI   |   §PAGE§</p>')
     html = (f'<section id="{sid}" data-transition="{transition}" style="background:{bg};color:{color};'
             f'font-family:{HEB};{lay}">\n{body}\n{foot}\n<aside>{notes}</aside>\n</section>\n')
     slides[sid] = html
@@ -413,24 +412,32 @@ section("sources", f"""
 """, "רשימת המקורות. הנתונים העצמאיים מגיעים ממאגר jev-benchmark, ששם את כל המקרים והתוצאות בקוד פתוח.", bg=BG2)
 
 # write ------------------------------------------------------------------------
-now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-deck = {
-    "v": 4, "createdOnFiles": {"v": 1, "at": now}, "lists": "css",
-    "title": "Jev — מודל System One", "order": order, "cover": "cover",
-    "sections": {
-        "s1": {"description": "מה זה Jev ולמה הוא קיים", "start": "cover"},
-        "s2": {"description": "איך הוא עובד ובמה הוא שונה", "start": "how"},
-        "s3": {"description": "דוגמאות שימוש", "start": "examples"},
-        "s4": {"description": "מציאות, מגבלות ומתי לבחור בו", "start": "reality"},
-    },
-    "faces": {
-        "heebo": {"family": "Heebo", "href": "https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&display=swap"},
-        "rubik": {"family": "Rubik", "href": "https://fonts.googleapis.com/css2?family=Rubik:wght@300..800&display=swap"},
-        "jetbrains-mono": {"family": "JetBrains Mono", "href": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap"},
-    },
-    "designSystems": [],
+SECTIONS = {
+    "s1": {"description": "מה זה Jev ולמה הוא קיים", "start": "cover"},
+    "s2": {"description": "איך הוא עובד ובמה הוא שונה", "start": "how"},
+    "s3": {"description": "דוגמאות שימוש", "start": "examples"},
+    "s4": {"description": "מציאות, מגבלות ומתי לבחור בו", "start": "reality"},
 }
-json.dump(deck, open(os.path.join(OUT, "deck.json"), "w"), ensure_ascii=False, indent=1)
-for sid, html in slides.items():
-    open(os.path.join(OUT, "slides", f"{sid}.html"), "w").write(html)
-print(len(order), "slides:", " ".join(order))
+
+
+def write(out_project: str, title: str, sections: dict, order_: list[str]) -> None:
+    os.makedirs(os.path.join(out_project, "slides"), exist_ok=True)
+    now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    deck = {
+        "v": 4, "createdOnFiles": {"v": 1, "at": now}, "lists": "css",
+        "title": title, "order": order_, "cover": "cover", "sections": sections,
+        "faces": {
+            "heebo": {"family": "Heebo", "href": "https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&display=swap"},
+            "rubik": {"family": "Rubik", "href": "https://fonts.googleapis.com/css2?family=Rubik:wght@300..800&display=swap"},
+            "jetbrains-mono": {"family": "JetBrains Mono", "href": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap"},
+        },
+        "designSystems": [],
+    }
+    json.dump(deck, open(os.path.join(out_project, "deck.json"), "w"), ensure_ascii=False, indent=1)
+    for i, sid in enumerate(order_, 1):
+        open(os.path.join(out_project, "slides", f"{sid}.html"), "w").write(slides[sid].replace("§PAGE§", str(i)))
+    print(len(order_), "slides:", " ".join(order_))
+
+
+if __name__ == "__main__":
+    write(OUT, "Jev — מודל System One", SECTIONS, order)

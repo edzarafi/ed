@@ -1,0 +1,40 @@
+name: jev-medical-pipeline
+
+on:
+  push:
+    paths: ["jev-docs-pipeline/**", ".github/workflows/jev-pipeline.yml"]
+  pull_request:
+    paths: ["jev-docs-pipeline/**"]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "demo (offline) or live (needs TYPESAFE_API_KEY and ANTHROPIC_API_KEY secrets)"
+        type: choice
+        options: [demo, live]
+        default: demo
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: jev-docs-pipeline
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q tests
+      - name: Execute notebook
+        env:
+          MODE: ${{ inputs.mode || 'demo' }}
+          TYPESAFE_API_KEY: ${{ inputs.mode == 'live' && secrets.TYPESAFE_API_KEY || '' }}
+          ANTHROPIC_API_KEY: ${{ inputs.mode == 'live' && secrets.ANTHROPIC_API_KEY || '' }}
+        run: jupyter nbconvert --to notebook --execute jev_medical_pipeline.ipynb --output executed_${MODE}.ipynb
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-results-${{ inputs.mode || 'demo' }}
+          path: |
+            jev-docs-pipeline/executed_*.ipynb
+            jev-docs-pipeline/outputs/

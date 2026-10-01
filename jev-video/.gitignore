@@ -7,3 +7,4 @@ tts/sherpa-onnx-whisper-small/
 tts/*.wav
 tts/asr.log
 build/
+__pycache__/

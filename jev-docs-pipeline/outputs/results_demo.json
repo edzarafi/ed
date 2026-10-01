@@ -1,0 +1,1774 @@
+{
+ "mode": "demo",
+ "inject_errors": true,
+ "results": [
+  {
+   "doc_id": "01_discharge_pneumonia",
+   "classification": {
+    "doc_type": {
+     "type": "choice",
+     "choice": "discharge_summary",
+     "confidence": 0.9986246430409693,
+     "probabilities": {
+      "discharge_summary": 0.9986246430409693,
+      "lab_report": 1.4924783349436324e-05,
+      "er_visit": 1.4924783349436324e-05,
+      "imaging_report": 1.4924783349436324e-05,
+      "pathology_report": 1.4924783349436324e-05,
+      "referral_letter": 1.4924783349436324e-05,
+      "prescription": 1.4924783349436324e-05,
+      "clinic_visit": 1.4924783349436324e-05,
+      "administrative": 0.0012708834755848387
+     },
+     "noul": null,
+     "score": null
+    },
+    "specialty": {
+     "type": "choice",
+     "choice": "internal_medicine",
+     "confidence": 0.47756654378513463,
+     "probabilities": {
+      "internal_medicine": 0.47756654378513463,
+      "family_medicine": 0.47756654378513463,
+      "cardiology": 0.005608364053716445,
+      "endocrinology": 0.005608364053716445,
+      "orthopedics": 0.005608364053716445,
+      "oncology": 0.005608364053716445,
+      "pediatrics": 0.005608364053716445,
+      "emergency_medicine": 0.005608364053716445,
+      "neurology": 0.005608364053716445,
+      "none": 0.005608364053716445
+     },
+     "noul": null,
+     "score": null
+    },
+    "urgency": {
+     "type": "score",
+     "choice": null,
+     "confidence": 0.8,
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.8,
+      "2": 0.05,
+      "3": 0.05,
+      "4": 0.05
+     },
+     "noul": null,
+     "score": 1.25
+    },
+    "contains_phi": {
+     "type": "noul",
+     "choice": null,
+     "confidence": null,
+     "probabilities": {},
+     "noul": 0.97,
+     "score": null
+    }
+   },
+   "latency_s": {
+    "classify": 0.00016741600006753288,
+    "extract": 0.0,
+    "verify": 0.0010198780000791885
+   },
+   "jev_usage": [
+    {},
+    {}
+   ],
+   "extraction": {
+    "patient_name": "דוד לוי",
+    "patient_age": 72,
+    "patient_sex": "male",
+    "document_date": "2026-09-08",
+    "facility": "המרכז הרפואי \"שקד\"",
+    "primary_diagnosis": "דלקת ריאות נרכשת בקהילה, אונה תחתונה ימנית",
+    "icd10_code": "J18.1",
+    "secondary_diagnoses": [
+     "COPD",
+     "יתר לחץ דם"
+    ],
+    "medications": [
+     {
+      "name": "Amoxicillin-Clavulanate",
+      "dose": "875/125 מ\"ג",
+      "frequency": "פעמיים ביום"
+     },
+     {
+      "name": "Amlodipine",
+      "dose": "5 מ\"ג",
+      "frequency": "פעם ביום"
+     }
+    ],
+    "lab_values": [
+     {
+      "test": "WBC",
+      "value": "15.8",
+      "unit": "K/µL",
+      "flag": "high"
+     },
+     {
+      "test": "CRP",
+      "value": "186",
+      "unit": "mg/L",
+      "flag": "high"
+     }
+    ],
+    "follow_up": "ביקורת אצל רופא/ת המשפחה בעוד שבוע; צילום חזה חוזר בעוד 6 שבועות",
+    "evidence": []
+   },
+   "injected_fields": [],
+   "claude_usage": {},
+   "fields": [
+    {
+     "field": "patient_age",
+     "value": "72",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "primary_diagnosis",
+     "value": "דלקת ריאות נרכשת בקהילה, אונה תחתונה ימנית",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "icd10_code",
+     "value": "J18.1",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "medications[0]",
+     "value": "Amoxicillin-Clavulanate 875/125 מ\"ג",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "medications[1]",
+     "value": "Amlodipine 5 מ\"ג",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[0]",
+     "value": "WBC 15.8",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[1]",
+     "value": "CRP 186",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "follow_up",
+     "value": "ביקורת אצל רופא/ת המשפחה בעוד שבוע; צילום חזה חוזר בעוד 6 שבועות",
+     "confidence": 0.91,
+     "status": "accept"
+    }
+   ],
+   "icd_consistent": 0.9,
+   "extraction_quality": {
+    "type": "score",
+    "choice": null,
+    "confidence": 0.75,
+    "probabilities": {
+     "4": 0.75
+    },
+    "noul": null,
+    "score": 4.0
+   },
+   "route": "auto_accept",
+   "route_reason": "all fields >= 0.9"
+  },
+  {
+   "doc_id": "02_lab_diabetes",
+   "classification": {
+    "doc_type": {
+     "type": "choice",
+     "choice": "lab_report",
+     "confidence": 0.9863452930858223,
+     "probabilities": {
+      "discharge_summary": 0.0001360296503453603,
+      "lab_report": 0.9863452930858223,
+      "er_visit": 0.0001360296503453603,
+      "imaging_report": 0.0001360296503453603,
+      "pathology_report": 0.001255256359773438,
+      "referral_letter": 0.011583272652331738,
+      "prescription": 0.0001360296503453603,
+      "clinic_visit": 0.0001360296503453603,
+      "administrative": 0.0001360296503453603
+     },
+     "noul": null,
+     "score": null
+    },
+    "specialty": {
+     "type": "choice",
+     "choice": "endocrinology",
+     "confidence": 0.9886759975623592,
+     "probabilities": {
+      "internal_medicine": 0.001258222493071213,
+      "family_medicine": 0.001258222493071213,
+      "cardiology": 0.001258222493071213,
+      "endocrinology": 0.9886759975623592,
+      "orthopedics": 0.001258222493071213,
+      "oncology": 0.001258222493071213,
+      "pediatrics": 0.001258222493071213,
+      "emergency_medicine": 0.001258222493071213,
+      "neurology": 0.001258222493071213,
+      "none": 0.001258222493071213
+     },
+     "noul": null,
+     "score": null
+    },
+    "urgency": {
+     "type": "score",
+     "choice": null,
+     "confidence": 0.8,
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.05,
+      "2": 0.8,
+      "3": 0.05,
+      "4": 0.05
+     },
+     "noul": null,
+     "score": 2.0000000000000004
+    },
+    "contains_phi": {
+     "type": "noul",
+     "choice": null,
+     "confidence": null,
+     "probabilities": {},
+     "noul": 0.97,
+     "score": null
+    }
+   },
+   "latency_s": {
+    "classify": 9.867299991128675e-05,
+    "extract": 0.0,
+    "verify": 0.0009471249999251086
+   },
+   "jev_usage": [
+    {},
+    {}
+   ],
+   "extraction": {
+    "patient_name": "מרים כהן",
+    "patient_age": 58,
+    "patient_sex": "female",
+    "document_date": "2026-09-14",
+    "facility": "מעבדות \"אלון\"",
+    "primary_diagnosis": "סוכרת סוג 2 שאינה מאוזנת, עם מיקרואלבומינוריה",
+    "icd10_code": "E11.65",
+    "secondary_diagnoses": [],
+    "medications": [
+     {
+      "name": "Metformin",
+      "dose": "1000 מ\"ג",
+      "frequency": "פעמיים ביום"
+     },
+     {
+      "name": "Atorvastatin",
+      "dose": "20 מ\"ג",
+      "frequency": "בערב"
+     }
+    ],
+    "lab_values": [
+     {
+      "test": "גלוקוז בצום",
+      "value": "182",
+      "unit": "mg/dL",
+      "flag": "high"
+     },
+     {
+      "test": "HbA1c",
+      "value": "8.9",
+      "unit": "%",
+      "flag": "high"
+     },
+     {
+      "test": "LDL",
+      "value": "148",
+      "unit": "mg/dL",
+      "flag": "high"
+     },
+     {
+      "test": "מיקרואלבומין בשתן",
+      "value": "45",
+      "unit": "mg/g",
+      "flag": "high"
+     }
+    ],
+    "follow_up": "ביקור במרפאת סוכרת תוך חודש",
+    "evidence": []
+   },
+   "injected_fields": [],
+   "claude_usage": {},
+   "fields": [
+    {
+     "field": "patient_age",
+     "value": "58",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "primary_diagnosis",
+     "value": "סוכרת סוג 2 שאינה מאוזנת, עם מיקרואלבומינוריה",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "icd10_code",
+     "value": "E11.65",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "medications[0]",
+     "value": "Metformin 1000 מ\"ג",
+     "confidence": 0.91,
+     "status": "accept"
+    },
+    {
+     "field": "medications[1]",
+     "value": "Atorvastatin 20 מ\"ג",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[0]",
+     "value": "גלוקוז בצום 182",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[1]",
+     "value": "HbA1c 8.9",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[2]",
+     "value": "LDL 148",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[3]",
+     "value": "מיקרואלבומין בשתן 45",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "follow_up",
+     "value": "ביקור במרפאת סוכרת תוך חודש",
+     "confidence": 0.96,
+     "status": "accept"
+    }
+   ],
+   "icd_consistent": 0.9,
+   "extraction_quality": {
+    "type": "score",
+    "choice": null,
+    "confidence": 0.75,
+    "probabilities": {
+     "4": 0.75
+    },
+    "noul": null,
+    "score": 4.0
+   },
+   "route": "auto_accept",
+   "route_reason": "all fields >= 0.9"
+  },
+  {
+   "doc_id": "03_er_stemi",
+   "classification": {
+    "doc_type": {
+     "type": "choice",
+     "choice": "er_visit",
+     "confidence": 0.997766974097675,
+     "probabilities": {
+      "discharge_summary": 0.00013760484646105098,
+      "lab_report": 0.00013760484646105098,
+      "er_visit": 0.997766974097675,
+      "imaging_report": 0.00013760484646105098,
+      "pathology_report": 0.00013760484646105098,
+      "referral_letter": 0.00013760484646105098,
+      "prescription": 0.00013760484646105098,
+      "clinic_visit": 0.0012697919770972429,
+      "administrative": 0.00013760484646105098
+     },
+     "noul": null,
+     "score": null
+    },
+    "specialty": {
+     "type": "choice",
+     "choice": "cardiology",
+     "confidence": 0.49746762354879837,
+     "probabilities": {
+      "internal_medicine": 0.0006330941128003883,
+      "family_medicine": 0.0006330941128003883,
+      "cardiology": 0.49746762354879837,
+      "endocrinology": 0.0006330941128003883,
+      "orthopedics": 0.0006330941128003883,
+      "oncology": 0.0006330941128003883,
+      "pediatrics": 0.0006330941128003883,
+      "emergency_medicine": 0.49746762354879837,
+      "neurology": 0.0006330941128003883,
+      "none": 0.0006330941128003883
+     },
+     "noul": null,
+     "score": null
+    },
+    "urgency": {
+     "type": "score",
+     "choice": null,
+     "confidence": 0.8,
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.05,
+      "2": 0.05,
+      "3": 0.05,
+      "4": 0.8
+     },
+     "noul": null,
+     "score": 3.5
+    },
+    "contains_phi": {
+     "type": "noul",
+     "choice": null,
+     "confidence": null,
+     "probabilities": {},
+     "noul": 0.97,
+     "score": null
+    }
+   },
+   "latency_s": {
+    "classify": 9.570399993208412e-05,
+    "extract": 0.0,
+    "verify": 0.00077798300003451
+   },
+   "jev_usage": [
+    {},
+    {}
+   ],
+   "extraction": {
+    "patient_name": "יוסף אברהם",
+    "patient_age": 64,
+    "patient_sex": "male",
+    "document_date": "2026-09-21",
+    "facility": "המרכז הרפואי \"שקד\"",
+    "primary_diagnosis": "אוטם חריף בשריר הלב עם הרמת ST (STEMI) בדופן הקדמית",
+    "icd10_code": "I21.0",
+    "secondary_diagnoses": [],
+    "medications": [
+     {
+      "name": "אספירין",
+      "dose": "300 מ\"ג",
+      "frequency": "מנה חד-פעמית"
+     },
+     {
+      "name": "Ticagrelor",
+      "dose": "180 מ\"ג",
+      "frequency": "העמסה"
+     },
+     {
+      "name": "הפרין",
+      "dose": "5,000 יחידות",
+      "frequency": "מנה חד-פעמית"
+     }
+    ],
+    "lab_values": [
+     {
+      "test": "טרופונין רגיש",
+      "value": "2,450",
+      "unit": "ng/L",
+      "flag": "high"
+     }
+    ],
+    "follow_up": "אשפוז ביחידה לטיפול נמרץ לב לאחר הצנתור",
+    "evidence": []
+   },
+   "injected_fields": [],
+   "claude_usage": {},
+   "fields": [
+    {
+     "field": "patient_age",
+     "value": "64",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "primary_diagnosis",
+     "value": "אוטם חריף בשריר הלב עם הרמת ST (STEMI) בדופן הקדמית",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "icd10_code",
+     "value": "I21.0",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "medications[0]",
+     "value": "אספירין 300 מ\"ג",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "medications[1]",
+     "value": "Ticagrelor 180 מ\"ג",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "medications[2]",
+     "value": "הפרין 5,000 יחידות",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[0]",
+     "value": "טרופונין רגיש 2,450",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "follow_up",
+     "value": "אשפוז ביחידה לטיפול נמרץ לב לאחר הצנתור",
+     "confidence": 0.96,
+     "status": "accept"
+    }
+   ],
+   "icd_consistent": 0.9,
+   "extraction_quality": {
+    "type": "score",
+    "choice": null,
+    "confidence": 0.75,
+    "probabilities": {
+     "4": 0.75
+    },
+    "noul": null,
+    "score": 4.0
+   },
+   "route": "auto_accept",
+   "route_reason": "all fields >= 0.9"
+  },
+  {
+   "doc_id": "04_imaging_fracture",
+   "classification": {
+    "doc_type": {
+     "type": "choice",
+     "choice": "imaging_report",
+     "confidence": 0.9977669740976752,
+     "probabilities": {
+      "discharge_summary": 0.000137604846461051,
+      "lab_report": 0.000137604846461051,
+      "er_visit": 0.000137604846461051,
+      "imaging_report": 0.9977669740976752,
+      "pathology_report": 0.000137604846461051,
+      "referral_letter": 0.001269791977097243,
+      "prescription": 0.000137604846461051,
+      "clinic_visit": 0.000137604846461051,
+      "administrative": 0.000137604846461051
+     },
+     "noul": null,
+     "score": null
+    },
+    "specialty": {
+     "type": "choice",
+     "choice": "orthopedics",
+     "confidence": 0.9997425907590427,
+     "probabilities": {
+      "internal_medicine": 1.4941491456535937e-05,
+      "family_medicine": 1.4941491456535937e-05,
+      "cardiology": 1.4941491456535937e-05,
+      "endocrinology": 1.4941491456535937e-05,
+      "orthopedics": 0.9997425907590427,
+      "oncology": 1.4941491456535937e-05,
+      "pediatrics": 1.4941491456535937e-05,
+      "emergency_medicine": 0.0001378773093049923,
+      "neurology": 1.4941491456535937e-05,
+      "none": 1.4941491456535937e-05
+     },
+     "noul": null,
+     "score": null
+    },
+    "urgency": {
+     "type": "score",
+     "choice": null,
+     "confidence": 0.8,
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.05,
+      "2": 0.8,
+      "3": 0.05,
+      "4": 0.05
+     },
+     "noul": null,
+     "score": 2.0000000000000004
+    },
+    "contains_phi": {
+     "type": "noul",
+     "choice": null,
+     "confidence": null,
+     "probabilities": {},
+     "noul": 0.97,
+     "score": null
+    }
+   },
+   "latency_s": {
+    "classify": 0.00011044500001844426,
+    "extract": 0.0,
+    "verify": 0.00030767399994147127
+   },
+   "jev_usage": [
+    {},
+    {}
+   ],
+   "extraction": {
+    "patient_name": "נועה פרץ",
+    "patient_age": 34,
+    "patient_sex": "female",
+    "document_date": "2026-09-17",
+    "facility": "מכון הדימות \"גפן\"",
+    "primary_diagnosis": "שבר Colles ברדיוס הדיסטלי השמאלי",
+    "icd10_code": "S52.532A",
+    "secondary_diagnoses": [],
+    "medications": [],
+    "lab_values": [],
+    "follow_up": "קיבוע בגבס והפניה לייעוץ אורתופדי תוך 48 שעות",
+    "evidence": []
+   },
+   "injected_fields": [],
+   "claude_usage": {},
+   "fields": [
+    {
+     "field": "patient_age",
+     "value": "34",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "primary_diagnosis",
+     "value": "שבר Colles ברדיוס הדיסטלי השמאלי",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "icd10_code",
+     "value": "S52.532A",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "follow_up",
+     "value": "קיבוע בגבס והפניה לייעוץ אורתופדי תוך 48 שעות",
+     "confidence": 0.96,
+     "status": "accept"
+    }
+   ],
+   "icd_consistent": 0.9,
+   "extraction_quality": {
+    "type": "score",
+    "choice": null,
+    "confidence": 0.75,
+    "probabilities": {
+     "4": 0.75
+    },
+    "noul": null,
+    "score": 4.0
+   },
+   "route": "auto_accept",
+   "route_reason": "all fields >= 0.9"
+  },
+  {
+   "doc_id": "05_pathology_breast",
+   "classification": {
+    "doc_type": {
+     "type": "choice",
+     "choice": "pathology_report",
+     "confidence": 0.9999971518238004,
+     "probabilities": {
+      "discharge_summary": 1.7551200290890788e-07,
+      "lab_report": 1.7551200290890788e-07,
+      "er_visit": 1.7551200290890788e-07,
+      "imaging_report": 1.7551200290890788e-07,
+      "pathology_report": 0.9999971518238004,
+      "referral_letter": 1.6195921794155758e-06,
+      "prescription": 1.7551200290890788e-07,
+      "clinic_visit": 1.7551200290890788e-07,
+      "administrative": 1.7551200290890788e-07
+     },
+     "noul": null,
+     "score": null
+    },
+    "specialty": {
+     "type": "choice",
+     "choice": "oncology",
+     "confidence": 0.9886759975623592,
+     "probabilities": {
+      "internal_medicine": 0.001258222493071213,
+      "family_medicine": 0.001258222493071213,
+      "cardiology": 0.001258222493071213,
+      "endocrinology": 0.001258222493071213,
+      "orthopedics": 0.001258222493071213,
+      "oncology": 0.9886759975623592,
+      "pediatrics": 0.001258222493071213,
+      "emergency_medicine": 0.001258222493071213,
+      "neurology": 0.001258222493071213,
+      "none": 0.001258222493071213
+     },
+     "noul": null,
+     "score": null
+    },
+    "urgency": {
+     "type": "score",
+     "choice": null,
+     "confidence": 0.8,
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.05,
+      "2": 0.05,
+      "3": 0.8,
+      "4": 0.05
+     },
+     "noul": null,
+     "score": 2.7500000000000004
+    },
+    "contains_phi": {
+     "type": "noul",
+     "choice": null,
+     "confidence": null,
+     "probabilities": {},
+     "noul": 0.97,
+     "score": null
+    }
+   },
+   "latency_s": {
+    "classify": 8.058499997787294e-05,
+    "extract": 0.0,
+    "verify": 0.0006587139999965075
+   },
+   "jev_usage": [
+    {},
+    {}
+   ],
+   "extraction": {
+    "patient_name": "רחל מזרחי",
+    "patient_age": 47,
+    "patient_sex": "female",
+    "document_date": "2026-09-10",
+    "facility": "המכון לפתולוגיה, המרכז הרפואי \"שקד\"",
+    "primary_diagnosis": "קרצינומה דוקטלית חודרנית, דרגה היסטולוגית 2",
+    "icd10_code": "C50.412",
+    "secondary_diagnoses": [],
+    "medications": [],
+    "lab_values": [
+     {
+      "test": "ER",
+      "value": "90%",
+      "unit": null,
+      "flag": "unknown"
+     },
+     {
+      "test": "PR",
+      "value": "60%",
+      "unit": null,
+      "flag": "unknown"
+     },
+     {
+      "test": "HER2",
+      "value": "1+",
+      "unit": null,
+      "flag": "unknown"
+     },
+     {
+      "test": "Ki-67",
+      "value": "20%",
+      "unit": null,
+      "flag": "unknown"
+     }
+    ],
+    "follow_up": "דיון בפורום שד רב-תחומי והפניה לאונקולוגיה",
+    "evidence": []
+   },
+   "injected_fields": [],
+   "claude_usage": {},
+   "fields": [
+    {
+     "field": "patient_age",
+     "value": "47",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "primary_diagnosis",
+     "value": "קרצינומה דוקטלית חודרנית, דרגה היסטולוגית 2",
+     "confidence": 0.91,
+     "status": "accept"
+    },
+    {
+     "field": "icd10_code",
+     "value": "C50.412",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[0]",
+     "value": "ER 90%",
+     "confidence": 0.91,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[1]",
+     "value": "PR 60%",
+     "confidence": 0.91,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[2]",
+     "value": "HER2 1+",
+     "confidence": 0.91,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[3]",
+     "value": "Ki-67 20%",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "follow_up",
+     "value": "דיון בפורום שד רב-תחומי והפניה לאונקולוגיה",
+     "confidence": 0.96,
+     "status": "accept"
+    }
+   ],
+   "icd_consistent": 0.9,
+   "extraction_quality": {
+    "type": "score",
+    "choice": null,
+    "confidence": 0.75,
+    "probabilities": {
+     "4": 0.75
+    },
+    "noul": null,
+    "score": 4.0
+   },
+   "route": "auto_accept",
+   "route_reason": "all fields >= 0.9"
+  },
+  {
+   "doc_id": "06_referral_hypothyroid",
+   "classification": {
+    "doc_type": {
+     "type": "choice",
+     "choice": "referral_letter",
+     "confidence": 0.9899215391092421,
+     "probabilities": {
+      "discharge_summary": 0.001259807611344749,
+      "lab_report": 0.001259807611344749,
+      "er_visit": 0.001259807611344749,
+      "imaging_report": 0.001259807611344749,
+      "pathology_report": 0.001259807611344749,
+      "referral_letter": 0.9899215391092421,
+      "prescription": 0.001259807611344749,
+      "clinic_visit": 0.001259807611344749,
+      "administrative": 0.001259807611344749
+     },
+     "noul": null,
+     "score": null
+    },
+    "specialty": {
+     "type": "choice",
+     "choice": "endocrinology",
+     "confidence": 0.9785456806239916,
+     "probabilities": {
+      "internal_medicine": 0.001245330309317161,
+      "family_medicine": 0.011491676901471244,
+      "cardiology": 0.001245330309317161,
+      "endocrinology": 0.9785456806239916,
+      "orthopedics": 0.001245330309317161,
+      "oncology": 0.001245330309317161,
+      "pediatrics": 0.001245330309317161,
+      "emergency_medicine": 0.001245330309317161,
+      "neurology": 0.001245330309317161,
+      "none": 0.001245330309317161
+     },
+     "noul": null,
+     "score": null
+    },
+    "urgency": {
+     "type": "score",
+     "choice": null,
+     "confidence": 0.8,
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.8,
+      "2": 0.05,
+      "3": 0.05,
+      "4": 0.05
+     },
+     "noul": null,
+     "score": 1.25
+    },
+    "contains_phi": {
+     "type": "noul",
+     "choice": null,
+     "confidence": null,
+     "probabilities": {},
+     "noul": 0.97,
+     "score": null
+    }
+   },
+   "latency_s": {
+    "classify": 8.76010000183669e-05,
+    "extract": 0.0,
+    "verify": 0.0006051729999398958
+   },
+   "jev_usage": [
+    {},
+    {}
+   ],
+   "extraction": {
+    "patient_name": "תמר גולן",
+    "patient_age": 39,
+    "patient_sex": "female",
+    "document_date": "2026-09-12",
+    "facility": "מרפאת \"הדר\" לרפואת המשפחה",
+    "primary_diagnosis": "תת-פעילות של בלוטת התריס על רקע דלקת אוטואימונית (השימוטו)",
+    "icd10_code": "E06.3",
+    "secondary_diagnoses": [],
+    "medications": [
+     {
+      "name": "Levothyroxine",
+      "dose": "50 מק\"ג",
+      "frequency": "פעם ביום בבוקר"
+     }
+    ],
+    "lab_values": [
+     {
+      "test": "TSH",
+      "value": "12.4",
+      "unit": "mIU/L",
+      "flag": "high"
+     },
+     {
+      "test": "Free T4",
+      "value": "0.6",
+      "unit": "ng/dL",
+      "flag": "low"
+     }
+    ],
+    "follow_up": "בירור, התאמת מינון והמשך מעקב",
+    "evidence": []
+   },
+   "injected_fields": [],
+   "claude_usage": {},
+   "fields": [
+    {
+     "field": "patient_age",
+     "value": "39",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "primary_diagnosis",
+     "value": "תת-פעילות של בלוטת התריס על רקע דלקת אוטואימונית (השימוטו)",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "icd10_code",
+     "value": "E06.3",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "medications[0]",
+     "value": "Levothyroxine 50 מק\"ג",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[0]",
+     "value": "TSH 12.4",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[1]",
+     "value": "Free T4 0.6",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "follow_up",
+     "value": "בירור, התאמת מינון והמשך מעקב",
+     "confidence": 0.96,
+     "status": "accept"
+    }
+   ],
+   "icd_consistent": 0.9,
+   "extraction_quality": {
+    "type": "score",
+    "choice": null,
+    "confidence": 0.75,
+    "probabilities": {
+     "4": 0.75
+    },
+    "noul": null,
+    "score": 4.0
+   },
+   "route": "auto_accept",
+   "route_reason": "all fields >= 0.9"
+  },
+  {
+   "doc_id": "07_prescription_hypertension",
+   "classification": {
+    "doc_type": {
+     "type": "choice",
+     "choice": "prescription",
+     "confidence": 0.998897913460114,
+     "probabilities": {
+      "discharge_summary": 0.00013776081748571425,
+      "lab_report": 0.00013776081748571425,
+      "er_visit": 0.00013776081748571425,
+      "imaging_report": 0.00013776081748571425,
+      "pathology_report": 0.00013776081748571425,
+      "referral_letter": 0.00013776081748571425,
+      "prescription": 0.998897913460114,
+      "clinic_visit": 0.00013776081748571425,
+      "administrative": 0.00013776081748571425
+     },
+     "noul": null,
+     "score": null
+    },
+    "specialty": {
+     "type": "choice",
+     "choice": "family_medicine",
+     "confidence": 0.9044104566229729,
+     "probabilities": {
+      "internal_medicine": 0.010621060375225228,
+      "family_medicine": 0.9044104566229729,
+      "cardiology": 0.010621060375225228,
+      "endocrinology": 0.010621060375225228,
+      "orthopedics": 0.010621060375225228,
+      "oncology": 0.010621060375225228,
+      "pediatrics": 0.010621060375225228,
+      "emergency_medicine": 0.010621060375225228,
+      "neurology": 0.010621060375225228,
+      "none": 0.010621060375225228
+     },
+     "noul": null,
+     "score": null
+    },
+    "urgency": {
+     "type": "score",
+     "choice": null,
+     "confidence": 0.8,
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.8,
+      "2": 0.05,
+      "3": 0.05,
+      "4": 0.05
+     },
+     "noul": null,
+     "score": 1.25
+    },
+    "contains_phi": {
+     "type": "noul",
+     "choice": null,
+     "confidence": null,
+     "probabilities": {},
+     "noul": 0.97,
+     "score": null
+    }
+   },
+   "latency_s": {
+    "classify": 6.66380000211575e-05,
+    "extract": 0.0,
+    "verify": 0.00045395799998004804
+   },
+   "jev_usage": [
+    {},
+    {}
+   ],
+   "extraction": {
+    "patient_name": "משה ביטון",
+    "patient_age": 61,
+    "patient_sex": "male",
+    "document_date": "2026-09-19",
+    "facility": "מרפאת \"הדר\"",
+    "primary_diagnosis": "יתר לחץ דם ראשוני",
+    "icd10_code": "I10",
+    "secondary_diagnoses": [],
+    "medications": [
+     {
+      "name": "Amlodipine",
+      "dose": "5 מ\"ג",
+      "frequency": "פעם ביום"
+     },
+     {
+      "name": "Ramipril",
+      "dose": "2.5 מ\"ג",
+      "frequency": "פעם ביום"
+     },
+     {
+      "name": "Atorvastatin",
+      "dose": "20 מ\"ג",
+      "frequency": "בערב"
+     }
+    ],
+    "lab_values": [],
+    "follow_up": "מדידת לחץ דם ביתית פעמיים בשבוע; בדיקת אשלגן וקריאטינין בעוד שבועיים",
+    "evidence": []
+   },
+   "injected_fields": [],
+   "claude_usage": {},
+   "fields": [
+    {
+     "field": "patient_age",
+     "value": "61",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "primary_diagnosis",
+     "value": "יתר לחץ דם ראשוני",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "icd10_code",
+     "value": "I10",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "medications[0]",
+     "value": "Amlodipine 5 מ\"ג",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "medications[1]",
+     "value": "Ramipril 2.5 מ\"ג",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "medications[2]",
+     "value": "Atorvastatin 20 מ\"ג",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "follow_up",
+     "value": "מדידת לחץ דם ביתית פעמיים בשבוע; בדיקת אשלגן וקריאטינין בעוד שבועיים",
+     "confidence": 0.96,
+     "status": "accept"
+    }
+   ],
+   "icd_consistent": 0.9,
+   "extraction_quality": {
+    "type": "score",
+    "choice": null,
+    "confidence": 0.75,
+    "probabilities": {
+     "4": 0.75
+    },
+    "noul": null,
+    "score": 4.0
+   },
+   "route": "auto_accept",
+   "route_reason": "all fields >= 0.9"
+  },
+  {
+   "doc_id": "08_pediatric_otitis",
+   "classification": {
+    "doc_type": {
+     "type": "choice",
+     "choice": "clinic_visit",
+     "confidence": 0.9899215391092421,
+     "probabilities": {
+      "discharge_summary": 0.001259807611344749,
+      "lab_report": 0.001259807611344749,
+      "er_visit": 0.001259807611344749,
+      "imaging_report": 0.001259807611344749,
+      "pathology_report": 0.001259807611344749,
+      "referral_letter": 0.001259807611344749,
+      "prescription": 0.001259807611344749,
+      "clinic_visit": 0.9899215391092421,
+      "administrative": 0.001259807611344749
+     },
+     "noul": null,
+     "score": null
+    },
+    "specialty": {
+     "type": "choice",
+     "choice": "pediatrics",
+     "confidence": 0.9998655100432584,
+     "probabilities": {
+      "internal_medicine": 1.4943328526849765e-05,
+      "family_medicine": 1.4943328526849765e-05,
+      "cardiology": 1.4943328526849765e-05,
+      "endocrinology": 1.4943328526849765e-05,
+      "orthopedics": 1.4943328526849765e-05,
+      "oncology": 1.4943328526849765e-05,
+      "pediatrics": 0.9998655100432584,
+      "emergency_medicine": 1.4943328526849765e-05,
+      "neurology": 1.4943328526849765e-05,
+      "none": 1.4943328526849765e-05
+     },
+     "noul": null,
+     "score": null
+    },
+    "urgency": {
+     "type": "score",
+     "choice": null,
+     "confidence": 0.8,
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.05,
+      "2": 0.8,
+      "3": 0.05,
+      "4": 0.05
+     },
+     "noul": null,
+     "score": 2.0000000000000004
+    },
+    "contains_phi": {
+     "type": "noul",
+     "choice": null,
+     "confidence": null,
+     "probabilities": {},
+     "noul": 0.97,
+     "score": null
+    }
+   },
+   "latency_s": {
+    "classify": 8.556599993880809e-05,
+    "extract": 0.0,
+    "verify": 0.00047237700005098304
+   },
+   "jev_usage": [
+    {},
+    {}
+   ],
+   "extraction": {
+    "patient_name": "איתי אזולאי",
+    "patient_age": 3,
+    "patient_sex": "male",
+    "document_date": "2026-09-22",
+    "facility": "מרפאת ילדים \"צבעוני\"",
+    "primary_diagnosis": "דלקת אוזן תיכונה חריפה, אוזן ימין",
+    "icd10_code": "H66.91",
+    "secondary_diagnoses": [],
+    "medications": [
+     {
+      "name": "Amoxicillin",
+      "dose": "1350 מ\"ג",
+      "frequency": "פעמיים ביום, 10 ימים"
+     },
+     {
+      "name": "Paracetamol",
+      "dose": "15 מ\"ג/ק\"ג",
+      "frequency": "לפי הצורך, עד 4 פעמים ביום"
+     }
+    ],
+    "lab_values": [],
+    "follow_up": "לחזור אם החום לא יורד תוך 48-72 שעות או בהופעת הפרשה מהאוזן",
+    "evidence": []
+   },
+   "injected_fields": [
+    "medications"
+   ],
+   "claude_usage": {},
+   "fields": [
+    {
+     "field": "patient_age",
+     "value": "3",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "primary_diagnosis",
+     "value": "דלקת אוזן תיכונה חריפה, אוזן ימין",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "icd10_code",
+     "value": "H66.91",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "medications[0]",
+     "value": "Amoxicillin 1350 מ\"ג",
+     "confidence": 0.347,
+     "status": "reject"
+    },
+    {
+     "field": "medications[1]",
+     "value": "Paracetamol 15 מ\"ג/ק\"ג",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "follow_up",
+     "value": "לחזור אם החום לא יורד תוך 48-72 שעות או בהופעת הפרשה מהאוזן",
+     "confidence": 0.96,
+     "status": "accept"
+    }
+   ],
+   "icd_consistent": 0.9,
+   "extraction_quality": {
+    "type": "score",
+    "choice": null,
+    "confidence": 0.75,
+    "probabilities": {
+     "3": 0.75
+    },
+    "noul": null,
+    "score": 3.0
+   },
+   "route": "human_review",
+   "route_reason": "rejected fields: medications[0]"
+  },
+  {
+   "doc_id": "09_ct_head_negative",
+   "classification": {
+    "doc_type": {
+     "type": "choice",
+     "choice": "imaging_report",
+     "confidence": 0.998897913460114,
+     "probabilities": {
+      "discharge_summary": 0.00013776081748571425,
+      "lab_report": 0.00013776081748571425,
+      "er_visit": 0.00013776081748571425,
+      "imaging_report": 0.998897913460114,
+      "pathology_report": 0.00013776081748571425,
+      "referral_letter": 0.00013776081748571425,
+      "prescription": 0.00013776081748571425,
+      "clinic_visit": 0.00013776081748571425,
+      "administrative": 0.00013776081748571425
+     },
+     "noul": null,
+     "score": null
+    },
+    "specialty": {
+     "type": "choice",
+     "choice": "emergency_medicine",
+     "confidence": 0.8857238328824576,
+     "probabilities": {
+      "internal_medicine": 0.0011272020883784678,
+      "family_medicine": 0.0011272020883784678,
+      "cardiology": 0.0011272020883784678,
+      "endocrinology": 0.0011272020883784678,
+      "orthopedics": 0.010401611608900461,
+      "oncology": 0.0011272020883784678,
+      "pediatrics": 0.0011272020883784678,
+      "emergency_medicine": 0.8857238328824576,
+      "neurology": 0.09598414088999277,
+      "none": 0.0011272020883784678
+     },
+     "noul": null,
+     "score": null
+    },
+    "urgency": {
+     "type": "score",
+     "choice": null,
+     "confidence": 0.8,
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.05,
+      "2": 0.8,
+      "3": 0.05,
+      "4": 0.05
+     },
+     "noul": null,
+     "score": 2.0000000000000004
+    },
+    "contains_phi": {
+     "type": "noul",
+     "choice": null,
+     "confidence": null,
+     "probabilities": {},
+     "noul": 0.97,
+     "score": null
+    }
+   },
+   "latency_s": {
+    "classify": 8.202000003620924e-05,
+    "extract": 0.0,
+    "verify": 0.0003379880000693447
+   },
+   "jev_usage": [
+    {},
+    {}
+   ],
+   "extraction": {
+    "patient_name": "שרה אוחיון",
+    "patient_age": 81,
+    "patient_sex": "female",
+    "document_date": "2026-09-20",
+    "facility": "המרכז הרפואי \"שקד\"",
+    "primary_diagnosis": "שבר בעצמות הגולגולת",
+    "icd10_code": "S02.0XXA",
+    "secondary_diagnoses": [],
+    "medications": [],
+    "lab_values": [],
+    "follow_up": "השגחה קלינית לאור הטיפול בנוגדי קרישה",
+    "evidence": []
+   },
+   "injected_fields": [
+    "primary_diagnosis",
+    "icd10_code"
+   ],
+   "claude_usage": {},
+   "fields": [
+    {
+     "field": "patient_age",
+     "value": "81",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "primary_diagnosis",
+     "value": "שבר בעצמות הגולגולת",
+     "confidence": 0.06,
+     "status": "reject"
+    },
+    {
+     "field": "icd10_code",
+     "value": "S02.0XXA",
+     "confidence": 0.08,
+     "status": "reject"
+    },
+    {
+     "field": "follow_up",
+     "value": "השגחה קלינית לאור הטיפול בנוגדי קרישה",
+     "confidence": 0.96,
+     "status": "accept"
+    }
+   ],
+   "icd_consistent": 0.15,
+   "extraction_quality": {
+    "type": "score",
+    "choice": null,
+    "confidence": 0.75,
+    "probabilities": {
+     "2": 0.75
+    },
+    "noul": null,
+    "score": 2.0
+   },
+   "route": "human_review",
+   "route_reason": "rejected fields: primary_diagnosis, icd10_code"
+  },
+  {
+   "doc_id": "10_admin_physio_invoice",
+   "classification": {
+    "doc_type": {
+     "type": "choice",
+     "choice": "administrative",
+     "confidence": 0.9988979134601143,
+     "probabilities": {
+      "discharge_summary": 0.00013776081748571428,
+      "lab_report": 0.00013776081748571428,
+      "er_visit": 0.00013776081748571428,
+      "imaging_report": 0.00013776081748571428,
+      "pathology_report": 0.00013776081748571428,
+      "referral_letter": 0.00013776081748571428,
+      "prescription": 0.00013776081748571428,
+      "clinic_visit": 0.00013776081748571428,
+      "administrative": 0.9988979134601143
+     },
+     "noul": null,
+     "score": null
+    },
+    "specialty": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.904410456622973,
+     "probabilities": {
+      "internal_medicine": 0.01062106037522523,
+      "family_medicine": 0.01062106037522523,
+      "cardiology": 0.01062106037522523,
+      "endocrinology": 0.01062106037522523,
+      "orthopedics": 0.01062106037522523,
+      "oncology": 0.01062106037522523,
+      "pediatrics": 0.01062106037522523,
+      "emergency_medicine": 0.01062106037522523,
+      "neurology": 0.01062106037522523,
+      "none": 0.904410456622973
+     },
+     "noul": null,
+     "score": null
+    },
+    "urgency": {
+     "type": "score",
+     "choice": null,
+     "confidence": 0.8,
+     "probabilities": {
+      "0": 0.8,
+      "1": 0.05,
+      "2": 0.05,
+      "3": 0.05,
+      "4": 0.05
+     },
+     "noul": null,
+     "score": 0.5
+    },
+    "contains_phi": {
+     "type": "noul",
+     "choice": null,
+     "confidence": null,
+     "probabilities": {},
+     "noul": 0.97,
+     "score": null
+    }
+   },
+   "latency_s": {
+    "classify": 6.531700000778073e-05
+   },
+   "jev_usage": [
+    {}
+   ],
+   "route": "archive",
+   "route_reason": "non-clinical document, no extraction"
+  },
+  {
+   "doc_id": "11_mixed_fax",
+   "classification": {
+    "doc_type": {
+     "type": "choice",
+     "choice": "referral_letter",
+     "confidence": 0.9141193736810018,
+     "probabilities": {
+      "discharge_summary": 0.010735078289874756,
+      "lab_report": 0.010735078289874756,
+      "er_visit": 0.010735078289874756,
+      "imaging_report": 0.010735078289874756,
+      "pathology_report": 0.010735078289874756,
+      "referral_letter": 0.9141193736810018,
+      "prescription": 0.010735078289874756,
+      "clinic_visit": 0.010735078289874756,
+      "administrative": 0.010735078289874756
+     },
+     "noul": null,
+     "score": null
+    },
+    "specialty": {
+     "type": "choice",
+     "choice": "cardiology",
+     "confidence": 0.9976296954166122,
+     "probabilities": {
+      "internal_medicine": 0.00013758591397248357,
+      "family_medicine": 0.00013758591397248357,
+      "cardiology": 0.9976296954166122,
+      "endocrinology": 0.001269617271607519,
+      "orthopedics": 0.00013758591397248357,
+      "oncology": 0.00013758591397248357,
+      "pediatrics": 0.00013758591397248357,
+      "emergency_medicine": 0.00013758591397248357,
+      "neurology": 0.00013758591397248357,
+      "none": 0.00013758591397248357
+     },
+     "noul": null,
+     "score": null
+    },
+    "urgency": {
+     "type": "score",
+     "choice": null,
+     "confidence": 0.8,
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.05,
+      "2": 0.8,
+      "3": 0.05,
+      "4": 0.05
+     },
+     "noul": null,
+     "score": 2.0000000000000004
+    },
+    "contains_phi": {
+     "type": "noul",
+     "choice": null,
+     "confidence": null,
+     "probabilities": {},
+     "noul": 0.97,
+     "score": null
+    }
+   },
+   "latency_s": {
+    "classify": 6.764399995518033e-05,
+    "extract": 0.0,
+    "verify": 0.0008283359999268214
+   },
+   "jev_usage": [
+    {},
+    {}
+   ],
+   "extraction": {
+    "patient_name": "גיל אשכנזי",
+    "patient_age": 69,
+    "patient_sex": "male",
+    "document_date": "2026-09-23",
+    "facility": "מרפאת \"הדר\"",
+    "primary_diagnosis": "פרפור פרוזדורים (חשד)",
+    "icd10_code": "I48.91",
+    "secondary_diagnoses": [],
+    "medications": [
+     {
+      "name": "Apixaban",
+      "dose": "5 מ\"ג",
+      "frequency": "פעמיים ביום"
+     }
+    ],
+    "lab_values": [
+     {
+      "test": "TSH",
+      "value": "1.9",
+      "unit": null,
+      "flag": "normal"
+     },
+     {
+      "test": "המוגלובין",
+      "value": "13.8",
+      "unit": null,
+      "flag": "normal"
+     },
+     {
+      "test": "אשלגן",
+      "value": "4.1",
+      "unit": null,
+      "flag": "normal"
+     },
+     {
+      "test": "קריאטינין",
+      "value": "1.0",
+      "unit": null,
+      "flag": "normal"
+     }
+    ],
+    "follow_up": "הולטר ואקו לב",
+    "evidence": []
+   },
+   "injected_fields": [],
+   "claude_usage": {},
+   "fields": [
+    {
+     "field": "patient_age",
+     "value": "69",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "primary_diagnosis",
+     "value": "פרפור פרוזדורים (חשד)",
+     "confidence": 0.91,
+     "status": "accept"
+    },
+    {
+     "field": "icd10_code",
+     "value": "I48.91",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "medications[0]",
+     "value": "Apixaban 5 מ\"ג",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[0]",
+     "value": "TSH 1.9",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[1]",
+     "value": "המוגלובין 13.8",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[2]",
+     "value": "אשלגן 4.1",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "lab_values[3]",
+     "value": "קריאטינין 1.0",
+     "confidence": 0.96,
+     "status": "accept"
+    },
+    {
+     "field": "follow_up",
+     "value": "הולטר ואקו לב",
+     "confidence": 0.96,
+     "status": "accept"
+    }
+   ],
+   "icd_consistent": 0.9,
+   "extraction_quality": {
+    "type": "score",
+    "choice": null,
+    "confidence": 0.75,
+    "probabilities": {
+     "4": 0.75
+    },
+    "noul": null,
+    "score": 4.0
+   },
+   "route": "auto_accept",
+   "route_reason": "all fields >= 0.9"
+  }
+ ],
+ "evaluation": {
+  "documents": 11,
+  "doc_type_accuracy": 1.0,
+  "specialty_accuracy": 1.0,
+  "urgency_mean_abs_error": 0.45,
+  "wrong_fields_flagged": 3,
+  "wrong_fields_missed": 0,
+  "correct_fields_flagged": 0,
+  "correct_fields_accepted": 68,
+  "wrong_fields": [
+   [
+    "08_pediatric_otitis",
+    "medications[0]",
+    "Amoxicillin 1350 מ\"ג",
+    0.347
+   ],
+   [
+    "09_ct_head_negative",
+    "primary_diagnosis",
+    "שבר בעצמות הגולגולת",
+    0.06
+   ],
+   [
+    "09_ct_head_negative",
+    "icd10_code",
+    "S02.0XXA",
+    0.08
+   ]
+  ]
+ },
+ "cost": {
+  "claude_input_tokens": 0,
+  "claude_output_tokens": 0,
+  "jev_input_tokens": 0,
+  "claude_usd": 0.0,
+  "jev_usd": 0.0
+ }
+}
