@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Jev Explainer</title>
+<style>
+@font-face { font-family: "Heebo"; src: url("../fonts/Heebo-Variable.ttf") format("truetype"); font-weight: 100 900; }
+@font-face { font-family: "Rubik"; src: url("../fonts/Rubik-Variable.ttf") format("truetype"); font-weight: 300 900; }
+:root {
+  --bg: #0A0B14; --bg2: #141632; --ink: #F6F1EA; --muted: #8F93B0; --line: rgba(246,241,234,.12);
+  --pink: #FF3D8B; --pink2: #FF8FB8; --llm: #7C87FF; --ok: #3DDC97; --bad: #FF5C6C;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+body { font-family: "Heebo", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+.latin { font-family: "Rubik", "Heebo", sans-serif; direction: ltr; unicode-bidi: isolate; display: inline-block; }
+.b { font-weight: 900; letter-spacing: -0.01em; }
+.t { font-weight: 100; }
+.t2 { font-weight: 200; }
+.m { font-weight: 400; }
+.pink { color: var(--pink); }
+.muted { color: var(--muted); }
+
+#stage { position: absolute; inset: 0; overflow: hidden; }
+#bg { position: absolute; inset: 0; background: radial-gradient(1200px 800px at 50% 40%, var(--bg2), var(--bg) 70%); }
+.glow { position: absolute; width: 1100px; height: 1100px; border-radius: 50%; filter: blur(140px); opacity: .35; }
+#g1 { background: var(--pink); left: -300px; top: -400px; opacity: .22; }
+#g2 { background: var(--llm); right: -400px; bottom: -500px; opacity: .18; }
+#grid { position: absolute; inset: -100px; opacity: .5;
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 80px 80px; mask-image: radial-gradient(ellipse at center, #000 20%, transparent 70%); -webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 70%); }
+
+.scene { position: absolute; inset: 0; opacity: 0; }
+.center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.kicker { font-size: 30px; font-weight: 300; letter-spacing: .12em; color: var(--pink2); }
+.h1 { font-size: 120px; line-height: 1.02; }
+.h2 { font-size: 84px; line-height: 1.08; }
+.h3 { font-size: 56px; line-height: 1.15; }
+.p { font-size: 40px; line-height: 1.35; }
+.card { background: rgba(255,255,255,.045); border: 1.5px solid var(--line); border-radius: 28px; backdrop-filter: blur(8px); }
+.chip { display: inline-flex; align-items: center; gap: 14px; padding: 18px 34px; border-radius: 999px; font-size: 40px; border: 2px solid var(--line); background: rgba(255,255,255,.05); }
+.chip.pinkc { border-color: var(--pink); background: rgba(255,61,139,.14); }
+.mark { width: 100%; height: 100%; }
+
+/* persistent chrome */
+#brand { position: absolute; top: 46px; left: 60px; display: flex; align-items: center; gap: 16px; opacity: 0; direction: ltr; }
+#brand svg { width: 40px; height: 44px; }
+#brand .w { font-family: "Rubik"; font-size: 28px; font-weight: 300; letter-spacing: .02em; }
+#brand .w b { font-weight: 800; }
+#progress { position: absolute; bottom: 0; right: 0; height: 6px; width: 0; background: linear-gradient(90deg, var(--llm), var(--pink)); }
+#subs { position: absolute; bottom: 52px; left: 50%; transform: translateX(-50%); width: 1760px; text-align: center; }
+#subs span { display: inline; font-size: 38px; font-weight: 400; line-height: 1.6; padding: 6px 22px; border-radius: 12px;
+  background: rgba(8,9,18,.72); box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+
+/* scene: hook */
+.chat { position: absolute; top: 250px; left: 50%; width: 1100px; margin-left: -550px; display: flex; flex-direction: column; gap: 26px; }
+.bubble { padding: 28px 36px; border-radius: 30px; font-size: 36px; line-height: 1.45; max-width: 860px; }
+.bubble.user { align-self: flex-start; background: var(--pink); color: #fff; border-bottom-right-radius: 8px; font-weight: 500; }
+.bubble.ai { align-self: flex-end; background: rgba(255,255,255,.07); border: 1.5px solid var(--line); border-bottom-left-radius: 8px; font-weight: 300; color: #DCD8E8; }
+.bubble.ai .w { opacity: 0; }
+.hook-title { position: absolute; top: 90px; width: 100%; text-align: center; }
+
+/* problem */
+.qs { display: flex; gap: 36px; justify-content: center; margin-top: 70px; }
+.qs .chip { font-size: 44px; padding: 24px 44px; }
+
+/* intro logo */
+.logo-wrap { width: 240px; height: 268px; margin-bottom: 40px; }
+.jev-word { font-family: "Rubik"; font-size: 260px; font-weight: 800; line-height: .9; letter-spacing: -.03em; direction: ltr; }
+.jev-word .jdot { color: var(--pink); }
+
+/* company */
+.co { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 90px; }
+.co .card { width: 720px; height: 470px; padding: 60px; display: flex; flex-direction: column; justify-content: center; }
+.money { font-family: "Rubik"; font-size: 210px; font-weight: 800; color: var(--pink); direction: ltr; line-height: 1; }
+
+/* system one */
+.sys { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; gap: 70px; padding-bottom: 110px; }
+.sys .card { width: 740px; height: 540px; padding: 56px; display: flex; flex-direction: column; justify-content: space-between; }
+.sys .num { font-size: 150px; line-height: 1; }
+.sys .viz { height: 150px; position: relative; }
+.bolt { position: absolute; right: 0; top: 0; height: 150px; }
+.slowdots { display: flex; gap: 22px; align-items: center; height: 150px; }
+.slowdots i { width: 26px; height: 26px; border-radius: 50%; background: var(--llm); display: block; }
+.kahn { position: absolute; bottom: 196px; width: 100%; text-align: center; font-size: 30px; }
+
+/* how */
+.flow { position: absolute; top: 210px; left: 90px; right: 90px; height: 600px; display: flex; align-items: center; justify-content: space-between; direction: rtl; }
+.flow .card { padding: 36px 40px; }
+.state { width: 470px; }
+.state .lbl, .qcard .lbl, .acard .lbl { font-size: 24px; letter-spacing: .14em; color: var(--muted); font-weight: 500; margin-bottom: 20px; }
+.ticket { font-size: 36px; line-height: 1.45; font-weight: 300; }
+.qcard { width: 520px; }
+.q { font-size: 30px; padding: 16px 0; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 20px; }
+.q:first-of-type { border-top: 0; }
+.q .ty { font-family: "Rubik"; font-size: 22px; color: var(--pink2); border: 1.5px solid rgba(255,143,184,.5); border-radius: 8px; padding: 4px 12px; direction: ltr; align-self: center; }
+.engine { width: 190px; height: 190px; border-radius: 40px; background: var(--pink); display: flex; align-items: center; justify-content: center; font-family: "Rubik"; font-weight: 800; font-size: 62px; color: #fff; box-shadow: 0 0 80px rgba(255,61,139,.55); direction: ltr; }
+.acard { width: 420px; }
+.a { font-size: 32px; padding: 14px 0; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); }
+.a:first-of-type { border-top: 0; }
+.a b { font-weight: 800; }
+.conf { font-family: "Rubik"; font-size: 24px; color: var(--ok); direction: ltr; }
+.arrow { width: 70px; height: 4px; background: var(--line); position: relative; }
+.arrow::after { content: ""; position: absolute; left: -2px; top: -9px; border: 11px solid transparent; border-right: 16px solid rgba(246,241,234,.35); border-left: 0; }
+.demo-note { position: absolute; top: 120px; width: 100%; text-align: center; font-size: 26px; }
+
+/* types */
+.types { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; gap: 50px; padding-bottom: 60px; }
+.types .card { width: 500px; height: 560px; padding: 50px 46px; display: flex; flex-direction: column; }
+.types .en { font-family: "Rubik"; font-weight: 300; font-size: 30px; color: var(--pink2); direction: ltr; text-align: right; }
+.types .he { font-size: 76px; font-weight: 900; margin: 6px 0 36px; }
+.opt { font-size: 30px; padding: 12px 20px; border-radius: 14px; margin-bottom: 12px; border: 1.5px solid var(--line); font-weight: 300; }
+.opt.sel { border-color: var(--pink); background: rgba(255,61,139,.15); font-weight: 700; }
+.meter { height: 26px; border-radius: 13px; background: rgba(255,255,255,.08); overflow: hidden; margin-top: 18px; }
+.meter i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--pink), var(--pink2)); border-radius: 13px; }
+.bignum { font-family: "Rubik"; font-size: 150px; font-weight: 800; direction: ltr; text-align: right; line-height: 1; }
+.yn { display: flex; gap: 20px; }
+.yn div { flex: 1; text-align: center; font-size: 52px; padding: 22px 0; border-radius: 18px; border: 1.5px solid var(--line); }
+.yn .on { border-color: var(--pink); background: rgba(255,61,139,.15); font-weight: 900; }
+
+/* parallel */
+.lane { position: absolute; left: 120px; right: 120px; height: 260px; }
+.lane .name { font-size: 44px; margin-bottom: 26px; }
+.tokens { display: flex; gap: 14px; flex-wrap: nowrap; direction: rtl; }
+.tok { font-size: 34px; padding: 14px 22px; border-radius: 14px; background: rgba(124,135,255,.15); border: 1.5px solid rgba(124,135,255,.5); opacity: 0; white-space: nowrap; }
+.ans { font-size: 36px; padding: 18px 32px; border-radius: 16px; background: rgba(255,61,139,.16); border: 2px solid var(--pink); opacity: 0; font-weight: 700; white-space: nowrap; }
+.timer { position: absolute; left: 0; top: 0; font-family: "Rubik"; font-size: 34px; color: var(--muted); direction: ltr; }
+
+/* noinvent */
+.set { position: absolute; top: 300px; left: 50%; width: 1240px; margin-left: -620px; height: 300px; border-radius: 40px; border: 3px dashed rgba(255,61,139,.6); display: flex; align-items: center; justify-content: center; gap: 30px; }
+.set .lbl { position: absolute; top: -26px; right: 60px; background: var(--bg); padding: 0 18px; font-size: 28px; color: var(--pink2); }
+.intruder { position: absolute; top: 680px; left: 50%; transform: translateX(-50%); font-size: 40px; padding: 20px 36px; border-radius: 18px; border: 2px solid var(--bad); color: var(--bad); background: rgba(255,92,108,.08); white-space: nowrap; }
+.intruder .x { position: absolute; left: -6%; right: -6%; top: 50%; height: 5px; background: var(--bad); transform-origin: right center; transform: scaleX(0); }
+
+/* numbers */
+.nums { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; gap: 90px; padding-bottom: 40px; }
+.nums .card { width: 780px; height: 520px; padding: 56px 60px; display: flex; flex-direction: column; justify-content: center; }
+.nums .val { font-family: "Rubik"; font-weight: 800; font-size: 150px; white-space: nowrap; line-height: 1; direction: ltr; text-align: right; }
+.nums .unit { font-size: 46px; font-weight: 200; margin-top: 18px; }
+.free { display: inline-block; margin-top: 30px; padding: 12px 28px; border-radius: 999px; background: var(--ok); color: #06140D; font-size: 36px; font-weight: 900; align-self: flex-start; }
+
+/* calibration */
+.cal { position: absolute; top: 180px; left: 110px; right: 110px; bottom: 170px; display: flex; gap: 70px; align-items: center; }
+.dots { display: grid; grid-template-columns: repeat(10, 64px); gap: 18px; direction: ltr; }
+.dot { width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,.08); border: 2px solid var(--line); transform: scale(0); }
+.dot.hi { background: var(--ok); border-color: var(--ok); }
+.dot.lo { background: rgba(61,220,151,.35); border-color: rgba(61,220,151,.6); }
+.dot.miss { background: var(--bad); border-color: var(--bad); }
+.legend { flex: 1; }
+.legend .row { display: flex; align-items: center; gap: 22px; font-size: 38px; margin: 26px 0; opacity: 0; }
+.legend .sw { width: 34px; height: 34px; border-radius: 50%; flex: none; }
+.src { position: absolute; bottom: 150px; width: 100%; text-align: center; font-size: 24px; color: var(--muted); }
+
+/* reality */
+.vs { position: absolute; top: 150px; left: 100px; right: 100px; bottom: 170px; display: flex; gap: 60px; }
+.vs .card { flex: 1; padding: 50px 56px; display: flex; flex-direction: column; }
+.vs .ttl { font-size: 46px; margin-bottom: 8px; }
+.vs .sub { font-size: 26px; font-weight: 300; color: var(--muted); margin-bottom: 40px; }
+.metric { display: flex; align-items: baseline; justify-content: space-between; padding: 22px 0; border-top: 1px solid var(--line); }
+.metric .k { font-size: 38px; font-weight: 300; }
+.metric .v { font-family: "Rubik"; font-size: 84px; font-weight: 800; direction: ltr; }
+.claim .v { color: var(--muted); font-weight: 300; }
+.claim .strike { position: absolute; }
+.measured .v { color: var(--pink); }
+.stamp { align-self: flex-start; margin-top: auto; font-size: 30px; padding: 12px 26px; border-radius: 12px; font-weight: 700; }
+
+/* limits */
+.lim { position: absolute; top: 200px; left: 50%; width: 1100px; margin-left: -550px; }
+.li { display: flex; align-items: center; gap: 34px; font-size: 60px; font-weight: 200; padding: 22px 0; opacity: 0; position: relative; }
+.li .ic { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 44px; font-weight: 900; flex: none; }
+.li.no .ic { background: rgba(255,92,108,.15); color: var(--bad); }
+.li.no .txt { position: relative; }
+.li.no .txt::after { content: ""; position: absolute; right: 0; top: 52%; height: 4px; width: var(--s, 0%); background: var(--bad); }
+.li.yes { font-weight: 900; font-size: 68px; margin-top: 30px; }
+.li.yes .ic { background: var(--pink); color: #fff; }
+
+/* outro */
+.duo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 40px; }
+.duo .card { width: 640px; height: 380px; padding: 50px; display: flex; flex-direction: column; justify-content: center; }
+.duo .plus { font-size: 120px; font-weight: 100; }
+.final { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; }
+.final .logo-wrap { width: 170px; height: 190px; margin-bottom: 30px; }
+.final .tag { font-size: 54px; margin-top: 26px; }
+.final .srcs { position: absolute; bottom: 70px; font-size: 22px; color: var(--muted); text-align: center; line-height: 1.6; direction: rtl; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"><div class="glow" id="g1"></div><div class="glow" id="g2"></div><div id="grid"></div></div>
+
+  <!-- 1 hook -->
+  <section class="scene" id="s-hook">
+    <div class="hook-title"><span class="h3 t">שואלים שאלה </span><span class="h3 b">מקבלים פסקה.</span></div>
+    <div class="chat">
+      <div class="bubble user">לאיזו מחלקה להעביר את הפנייה של הלקוח?</div>
+      <div class="bubble ai" id="aitext"></div>
+    </div>
+  </section>
+
+  <!-- 2 problem -->
+  <section class="scene" id="s-problem">
+    <div class="center">
+      <div class="h2"><span class="b">תוכנה צריכה החלטה.</span></div>
+      <div class="h2 t">לא חיבור.</div>
+      <div class="qs">
+        <div class="chip">לאיזו מחלקה?</div>
+        <div class="chip">כמה דחוף?</div>
+        <div class="chip">ספאם או לא?</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 intro -->
+  <section class="scene" id="s-intro">
+    <div class="center">
+      <div class="logo-wrap" id="introLogo"></div>
+      <div class="jev-word" id="jevword">Jev<span class="jdot">.</span></div>
+      <div class="p t2" style="margin-top:34px">מודל <span class="latin">System One</span> הראשון של <span class="latin m">TypeSafe AI</span></div>
+      <div class="p b pink" style="font-size:34px;margin-top:14px">הושק ב-15 בספטמבר 2026</div>
+    </div>
+  </section>
+
+  <!-- 4 company -->
+  <section class="scene" id="s-company">
+    <div class="co">
+      <div class="card" id="co1">
+        <div class="kicker">מייסד ומנכ״ל</div>
+        <div class="h2 b" style="margin:18px 0 22px">דיוגו אלמיידה</div>
+        <div class="p t2">חוקר לשעבר ב-<span class="latin m">OpenAI</span></div>
+        <div class="p t2">ממחברי <span class="latin m">InstructGPT</span>, המחקר שהוביל ל-<span class="latin m">ChatGPT</span></div>
+      </div>
+      <div class="card" id="co2" style="align-items:flex-start">
+        <div class="kicker">סבב גיוס ראשון</div>
+        <div class="money" id="money">$0M</div>
+        <div class="p t2" style="margin-top:20px">בהובלת קרן <span class="latin m">DCVC</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 system one -->
+  <section class="scene" id="s-systemone">
+    <div class="center" style="justify-content:flex-start;padding-top:90px"><div class="h3"><span class="t">למה </span><span class="b latin">System One</span><span class="t">?</span></div></div>
+    <div class="sys">
+      <div class="card" id="sys1" style="border-color:rgba(255,61,139,.6)">
+        <div><div class="kicker">מערכת</div><div class="num b pink">1</div></div>
+        <div class="viz"><svg class="bolt" viewBox="0 0 100 150"><path d="M60 0 L10 85 L45 85 L35 150 L90 60 L55 60 Z" fill="#FF3D8B"/></svg></div>
+        <div><div class="h3 b">מהירה. אינטואיטיבית.</div><div class="p t2 muted">לזהות פרצוף מוכר בשבריר שנייה</div></div>
+      </div>
+      <div class="card" id="sys2">
+        <div><div class="kicker" style="color:var(--llm)">מערכת</div><div class="num t" style="color:var(--llm)">2</div></div>
+        <div class="viz"><div class="slowdots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div><div class="h3 b">איטית. מעמיקה.</div><div class="p t2 muted">לפתור תרגיל חשבון ארוך</div></div>
+      </div>
+    </div>
+    <div class="kahn t2 muted">דניאל כהנמן · <span class="latin">Thinking, Fast and Slow</span> (2011)</div>
+  </section>
+
+  <!-- 6 how -->
+  <section class="scene" id="s-how">
+    <div class="demo-note t2 muted">דוגמה להמחשה</div>
+    <div class="flow">
+      <div class="card state" id="h-state">
+        <div class="lbl">מידע · <span class="latin">STATE</span></div>
+        <div class="ticket">"חויבתי פעמיים החודש! תטפלו בזה מיד."</div>
+      </div>
+      <div class="arrow" id="h-ar1"></div>
+      <div class="card qcard" id="h-q">
+        <div class="lbl">שאלות סגורות · <span class="latin">QUESTIONS</span></div>
+        <div class="q"><span>באיזה נושא מדובר?</span><span class="ty">Choice</span></div>
+        <div class="q"><span>כמה זה דחוף? 0–100</span><span class="ty">Score</span></div>
+        <div class="q"><span>האם זה ספאם?</span><span class="ty">Noul</span></div>
+      </div>
+      <div class="arrow" id="h-ar2"></div>
+      <div class="engine" id="h-eng">Jev</div>
+      <div class="arrow" id="h-ar3"></div>
+      <div class="card acard" id="h-a">
+        <div class="lbl">תשובות · <span class="latin">ANSWERS</span></div>
+        <div class="a"><span>נושא: <b>חיוב</b></span><span class="conf">0.97</span></div>
+        <div class="a"><span>דחיפות: <b>88</b></span><span class="conf">/100</span></div>
+        <div class="a"><span>ספאם: <b>לא</b></span><span class="conf">0.02</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 types -->
+  <section class="scene" id="s-types">
+    <div class="types">
+      <div class="card" id="ty1">
+        <div class="en">Choice</div><div class="he">בחירה</div>
+        <div class="opt">טכני</div><div class="opt sel" id="ty1sel">חיוב</div><div class="opt">מכירות</div><div class="opt">ספאם</div>
+        <div class="p t2 muted" style="font-size:26px;margin-top:auto">עד 255 אפשרויות</div>
+      </div>
+      <div class="card" id="ty2">
+        <div class="en">Score</div><div class="he">ציון</div>
+        <div class="bignum" id="ty2n">0</div>
+        <div class="meter"><i id="ty2m"></i></div>
+        <div class="p t2 muted" style="font-size:26px;margin-top:auto">דירוג מספרי לפי סקאלה</div>
+      </div>
+      <div class="card" id="ty3">
+        <div class="en">Noul</div><div class="he">כן / לא</div>
+        <div class="yn"><div class="on" id="ty3y">כן</div><div>לא</div></div>
+        <div class="meter"><i id="ty3m"></i></div>
+        <div class="p t2 muted" style="font-size:26px;margin-top:auto">הסתברות בין 0 ל-1</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 parallel -->
+  <section class="scene" id="s-parallel">
+    <div class="lane" style="top:220px">
+      <div class="name"><span class="t2">מודל שפה רגיל </span><span class="b" style="color:var(--llm)">מילה אחרי מילה</span></div>
+      <div class="tokens" id="toks"></div>
+    </div>
+    <div class="lane" style="top:560px">
+      <div class="name"><span class="b latin pink">Jev</span><span class="t2"> כל התשובות </span><span class="b pink">בבת אחת</span></div>
+      <div class="tokens" id="answ">
+        <div class="ans">נושא: חיוב</div><div class="ans">דחיפות: 88</div><div class="ans">ספאם: לא</div><div class="ans">שפה: עברית</div><div class="ans">טון: כועס</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 no invent -->
+  <section class="scene" id="s-noinvent">
+    <div class="center" style="justify-content:flex-start;padding-top:110px">
+      <div class="h2"><span class="b">אי אפשר להמציא.</span><span class="t"> אפשר רק לבחור.</span></div>
+    </div>
+    <div class="set" id="set">
+      <div class="lbl">האפשרויות שהגדרתם</div>
+      <div class="chip">טכני</div><div class="chip pinkc">חיוב</div><div class="chip">מכירות</div><div class="chip">ספאם</div>
+    </div>
+    <div class="intruder" id="intr">"החזר כספי + קופון 50%"<span class="x" id="intrx"></span></div>
+  </section>
+
+  <!-- 10 numbers -->
+  <section class="scene" id="s-numbers">
+    <div class="nums">
+      <div class="card" id="n1">
+        <div class="kicker">מהירות</div>
+        <div class="val"><span id="ms1">0</span>–<span id="ms2">0</span></div>
+        <div class="unit">אלפיות שנייה לתשובה</div>
+      </div>
+      <div class="card" id="n2">
+        <div class="kicker">מחיר</div>
+        <div class="val" id="price">$0.000</div>
+        <div class="unit">למיליון טוקנים של קלט</div>
+        <div class="free" id="free">הפלט: חינם</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 calibration -->
+  <section class="scene" id="s-calibration">
+    <div class="center" style="justify-content:flex-start;padding-top:80px"><div class="h3"><span class="b">ביטחון </span><span class="t">שאפשר לסמוך עליו</span></div></div>
+    <div class="cal">
+      <div class="dots" id="dots"></div>
+      <div class="legend">
+        <div class="row" id="lg1"><span class="sw" style="background:var(--ok)"></span><span><b>40 מתוך 40</b> <span class="t2">נכונות, כשהביטחון היה 100%</span></span></div>
+        <div class="row" id="lg2"><span class="sw" style="background:rgba(61,220,151,.4)"></span><span><b>15</b> <span class="t2">נכונות בביטחון חלקי</span></span></div>
+        <div class="row" id="lg3"><span class="sw" style="background:var(--bad)"></span><span><b>5 טעויות</b> <span class="t2">כולן בביטחון חלקי, אף אחת לא ב-100%</span></span></div>
+      </div>
+    </div>
+    <div class="src">מבחן עצמאי: 60 מקרים של סיווג סיכון בקריאות כלים של סוכני AI · <span class="latin">github.com/themsquared/jev-benchmark</span></div>
+  </section>
+
+  <!-- 12 reality -->
+  <section class="scene" id="s-reality">
+    <div class="vs">
+      <div class="card claim" id="rv1">
+        <div class="ttl b">מה <span class="latin">TypeSafe</span> טוענת</div>
+        <div class="sub">מבחנים פנימיים על תהליכי עבודה, מול <span class="latin">GPT-6 Astra</span> ו-<span class="latin">Fable 5.1</span></div>
+        <div class="metric"><span class="k">מהירות</span><span class="v" id="c1">×193.6</span></div>
+        <div class="metric"><span class="k">עלות</span><span class="v" id="c2">×444.6</span></div>
+        <div class="stamp" style="border:2px solid var(--muted);color:var(--muted)">לפי החברה: ״בקצה העליון של הצפוי״</div>
+      </div>
+      <div class="card measured" id="rv2" style="border-color:rgba(255,61,139,.6)">
+        <div class="ttl b">מה נמדד בפועל</div>
+        <div class="sub">מבחן עצמאי · 60 מקרים · מול <span class="latin">Claude Sonnet 5</span></div>
+        <div class="metric"><span class="k">דיוק</span><span class="v" style="color:var(--ink)">91.7% = 91.7%</span></div>
+        <div class="metric"><span class="k">מהירות</span><span class="v" id="m1">×3.5</span></div>
+        <div class="metric"><span class="k">עלות</span><span class="v" id="m2">×40</span></div>
+        <div class="stamp" style="background:var(--pink);color:#fff">עדיין פער עצום</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 limits -->
+  <section class="scene" id="s-limits">
+    <div class="lim">
+      <div class="li no"><div class="ic">✕</div><div class="txt">לא כותב מיילים</div></div>
+      <div class="li no"><div class="ic">✕</div><div class="txt">לא מסכם מסמכים</div></div>
+      <div class="li no"><div class="ic">✕</div><div class="txt">לא מנהל שיחה</div></div>
+      <div class="li yes"><div class="ic">✓</div><div class="txt">החלטות מהירות, בתוך תוכנה</div></div>
+    </div>
+  </section>
+
+  <!-- 14 outro -->
+  <section class="scene" id="s-outro">
+    <div class="duo" id="duo">
+      <div class="card" id="d1" style="border-color:rgba(124,135,255,.6)">
+        <div class="kicker" style="color:var(--llm)">מודל שפה · מערכת 2</div>
+        <div class="h2 b" style="margin-top:14px">חושב לעומק</div>
+      </div>
+      <div class="plus" id="dplus">+</div>
+      <div class="card" id="d2" style="border-color:rgba(255,61,139,.7)">
+        <div class="kicker"><span class="latin">Jev</span> · מערכת 1</div>
+        <div class="h2 b pink" style="margin-top:14px">מחליט מהר</div>
+      </div>
+    </div>
+    <div class="final" id="final">
+      <div class="logo-wrap" id="outroLogo"></div>
+      <div class="jev-word" style="font-size:200px">Jev<span class="jdot">.</span></div>
+      <div class="tag"><span class="t">by </span><span class="latin b" style="font-weight:700">TypeSafe AI</span></div>
+      <div class="srcs">
+        מקורות: הבלוג והתיעוד של <span class="latin">TypeSafe AI</span> · מבחן עצמאי <span class="latin">themsquared/jev-benchmark</span> (ספטמבר 2026) · סקירות טכניות שפורסמו בעקבות ההשקה<br>
+        מספרי הדוגמאות בסרטון להמחשה בלבד. נתוני הביצועים מצוטטים מהמקורות.
+      </div>
+    </div>
+  </section>
+
+  <div id="brand"><span id="brandMark"></span><span class="w"><b>Jev</b> · TypeSafe AI</span></div>
+  <div id="subs"><span id="subtext"></span></div>
+  <div id="progress"></div>
+</div>
+
+<script src="../node_modules/gsap/dist/gsap.min.js"></script>
+<script src="../build/timeline.js"></script>
+<script src="../build/logo.js"></script>
+<script src="scenes.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+node_modules/
+tts/.venv/
+tts/*.onnx
+tts/espeak-ng-data/
+tts/espeak-ng-data.tar.gz
+tts/sherpa-onnx-whisper-small/
+tts/*.wav
+tts/asr.log
+build/
