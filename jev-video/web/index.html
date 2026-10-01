@@ -23,9 +23,9 @@ body { font-family: "Heebo", sans-serif; color: var(--ink); -webkit-font-smoothi
 
 #stage { position: absolute; inset: 0; overflow: hidden; }
 #bg { position: absolute; inset: 0; background: radial-gradient(1200px 800px at 50% 40%, var(--bg2), var(--bg) 70%); }
-.glow { position: absolute; width: 1100px; height: 1100px; border-radius: 50%; filter: blur(140px); opacity: .35; }
-#g1 { background: var(--pink); left: -300px; top: -400px; opacity: .22; }
-#g2 { background: var(--llm); right: -400px; bottom: -500px; opacity: .18; }
+.glow { position: absolute; width: 1600px; height: 1600px; border-radius: 50%; }
+#g1 { background: radial-gradient(circle, rgba(255,61,139,.30), rgba(255,61,139,0) 62%); left: -550px; top: -650px; }
+#g2 { background: radial-gradient(circle, rgba(124,135,255,.24), rgba(124,135,255,0) 62%); right: -650px; bottom: -750px; }
 #grid { position: absolute; inset: -100px; opacity: .5;
   background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
   background-size: 80px 80px; mask-image: radial-gradient(ellipse at center, #000 20%, transparent 70%); -webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 70%); }
@@ -37,7 +37,7 @@ body { font-family: "Heebo", sans-serif; color: var(--ink); -webkit-font-smoothi
 .h2 { font-size: 84px; line-height: 1.08; }
 .h3 { font-size: 56px; line-height: 1.15; }
 .p { font-size: 40px; line-height: 1.35; }
-.card { background: rgba(255,255,255,.045); border: 1.5px solid var(--line); border-radius: 28px; backdrop-filter: blur(8px); }
+.card { background: rgba(255,255,255,.045); border: 1.5px solid var(--line); border-radius: 28px; }
 .chip { display: inline-flex; align-items: center; gap: 14px; padding: 18px 34px; border-radius: 999px; font-size: 40px; border: 2px solid var(--line); background: rgba(255,255,255,.05); }
 .chip.pinkc { border-color: var(--pink); background: rgba(255,61,139,.14); }
 .mark { width: 100%; height: 100%; }
