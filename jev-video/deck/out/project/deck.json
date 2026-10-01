@@ -1,0 +1,70 @@
+{
+ "v": 4,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-01T10:55:51Z"
+ },
+ "lists": "css",
+ "title": "Jev — מודל System One",
+ "order": [
+  "cover",
+  "hook",
+  "problem",
+  "statement",
+  "company",
+  "systemone",
+  "how",
+  "types",
+  "code",
+  "parallel",
+  "noinvent",
+  "compare",
+  "numbers",
+  "calibration",
+  "routing",
+  "examples",
+  "ex-support",
+  "ex-agent",
+  "ex-content",
+  "ex-ops",
+  "reality",
+  "limits",
+  "choose",
+  "closing",
+  "sources"
+ ],
+ "cover": "cover",
+ "sections": {
+  "s1": {
+   "description": "מה זה Jev ולמה הוא קיים",
+   "start": "cover"
+  },
+  "s2": {
+   "description": "איך הוא עובד ובמה הוא שונה",
+   "start": "how"
+  },
+  "s3": {
+   "description": "דוגמאות שימוש",
+   "start": "examples"
+  },
+  "s4": {
+   "description": "מציאות, מגבלות ומתי לבחור בו",
+   "start": "reality"
+  }
+ },
+ "faces": {
+  "heebo": {
+   "family": "Heebo",
+   "href": "https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&display=swap"
+  },
+  "rubik": {
+   "family": "Rubik",
+   "href": "https://fonts.googleapis.com/css2?family=Rubik:wght@300..800&display=swap"
+  },
+  "jetbrains-mono": {
+   "family": "JetBrains Mono",
+   "href": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap"
+  }
+ },
+ "designSystems": []
+}
