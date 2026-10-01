@@ -1,5 +1,6 @@
 {
  "mode": "demo",
+ "prompt_lang": "he",
  "inject_errors": true,
  "results": [
   {
@@ -66,9 +67,9 @@
     }
    },
    "latency_s": {
-    "classify": 0.00016741600006753288,
+    "classify": 0.00022164999995766266,
     "extract": 0.0,
-    "verify": 0.0010198780000791885
+    "verify": 0.001059840000039003
    },
    "jev_usage": [
     {},
@@ -179,7 +180,7 @@
     "score": 4.0
    },
    "route": "auto_accept",
-   "route_reason": "all fields >= 0.9"
+   "route_reason": "כל השדות ≥ 0.9"
   },
   {
    "doc_id": "02_lab_diabetes",
@@ -245,9 +246,9 @@
     }
    },
    "latency_s": {
-    "classify": 9.867299991128675e-05,
+    "classify": 0.00012410399995133048,
     "extract": 0.0,
-    "verify": 0.0009471249999251086
+    "verify": 0.0007720580000523114
    },
    "jev_usage": [
     {},
@@ -379,7 +380,7 @@
     "score": 4.0
    },
    "route": "auto_accept",
-   "route_reason": "all fields >= 0.9"
+   "route_reason": "כל השדות ≥ 0.9"
   },
   {
    "doc_id": "03_er_stemi",
@@ -445,9 +446,9 @@
     }
    },
    "latency_s": {
-    "classify": 9.570399993208412e-05,
+    "classify": 0.0001269209999463783,
     "extract": 0.0,
-    "verify": 0.00077798300003451
+    "verify": 0.0009244380000836827
    },
    "jev_usage": [
     {},
@@ -554,7 +555,7 @@
     "score": 4.0
    },
    "route": "auto_accept",
-   "route_reason": "all fields >= 0.9"
+   "route_reason": "כל השדות ≥ 0.9"
   },
   {
    "doc_id": "04_imaging_fracture",
@@ -620,9 +621,9 @@
     }
    },
    "latency_s": {
-    "classify": 0.00011044500001844426,
+    "classify": 9.16370000823008e-05,
     "extract": 0.0,
-    "verify": 0.00030767399994147127
+    "verify": 0.00038623499995082966
    },
    "jev_usage": [
     {},
@@ -682,7 +683,7 @@
     "score": 4.0
    },
    "route": "auto_accept",
-   "route_reason": "all fields >= 0.9"
+   "route_reason": "כל השדות ≥ 0.9"
   },
   {
    "doc_id": "05_pathology_breast",
@@ -748,9 +749,9 @@
     }
    },
    "latency_s": {
-    "classify": 8.058499997787294e-05,
+    "classify": 0.00010396599998330203,
     "extract": 0.0,
-    "verify": 0.0006587139999965075
+    "verify": 0.0007417659999191528
    },
    "jev_usage": [
     {},
@@ -859,7 +860,7 @@
     "score": 4.0
    },
    "route": "auto_accept",
-   "route_reason": "all fields >= 0.9"
+   "route_reason": "כל השדות ≥ 0.9"
   },
   {
    "doc_id": "06_referral_hypothyroid",
@@ -925,9 +926,9 @@
     }
    },
    "latency_s": {
-    "classify": 8.76010000183669e-05,
+    "classify": 8.666199994422641e-05,
     "extract": 0.0,
-    "verify": 0.0006051729999398958
+    "verify": 0.000676270999974804
    },
    "jev_usage": [
     {},
@@ -1024,7 +1025,7 @@
     "score": 4.0
    },
    "route": "auto_accept",
-   "route_reason": "all fields >= 0.9"
+   "route_reason": "כל השדות ≥ 0.9"
   },
   {
    "doc_id": "07_prescription_hypertension",
@@ -1090,9 +1091,9 @@
     }
    },
    "latency_s": {
-    "classify": 6.66380000211575e-05,
+    "classify": 6.86810000161131e-05,
     "extract": 0.0,
-    "verify": 0.00045395799998004804
+    "verify": 0.00047185599999011174
    },
    "jev_usage": [
     {},
@@ -1186,7 +1187,7 @@
     "score": 4.0
    },
    "route": "auto_accept",
-   "route_reason": "all fields >= 0.9"
+   "route_reason": "כל השדות ≥ 0.9"
   },
   {
    "doc_id": "08_pediatric_otitis",
@@ -1252,9 +1253,9 @@
     }
    },
    "latency_s": {
-    "classify": 8.556599993880809e-05,
+    "classify": 7.968099998834077e-05,
     "extract": 0.0,
-    "verify": 0.00047237700005098304
+    "verify": 0.0005876000000171189
    },
    "jev_usage": [
     {},
@@ -1339,7 +1340,7 @@
     "score": 3.0
    },
    "route": "human_review",
-   "route_reason": "rejected fields: medications[0]"
+   "route_reason": "שדות שנדחו: medications[0]"
   },
   {
    "doc_id": "09_ct_head_negative",
@@ -1405,9 +1406,9 @@
     }
    },
    "latency_s": {
-    "classify": 8.202000003620924e-05,
+    "classify": 8.31829999015099e-05,
     "extract": 0.0,
-    "verify": 0.0003379880000693447
+    "verify": 0.00031046700007664185
    },
    "jev_usage": [
     {},
@@ -1470,7 +1471,7 @@
     "score": 2.0
    },
    "route": "human_review",
-   "route_reason": "rejected fields: primary_diagnosis, icd10_code"
+   "route_reason": "שדות שנדחו: primary_diagnosis, icd10_code"
   },
   {
    "doc_id": "10_admin_physio_invoice",
@@ -1536,13 +1537,13 @@
     }
    },
    "latency_s": {
-    "classify": 6.531700000778073e-05
+    "classify": 0.0001049769999781347
    },
    "jev_usage": [
     {}
    ],
    "route": "archive",
-   "route_reason": "non-clinical document, no extraction"
+   "route_reason": "מסמך לא קליני, בלי חילוץ"
   },
   {
    "doc_id": "11_mixed_fax",
@@ -1608,9 +1609,9 @@
     }
    },
    "latency_s": {
-    "classify": 6.764399995518033e-05,
+    "classify": 7.575800009362865e-05,
     "extract": 0.0,
-    "verify": 0.0008283359999268214
+    "verify": 0.0009951099999625512
    },
    "jev_usage": [
     {},
@@ -1731,7 +1732,7 @@
     "score": 4.0
    },
    "route": "auto_accept",
-   "route_reason": "all fields >= 0.9"
+   "route_reason": "כל השדות ≥ 0.9"
   }
  ],
  "evaluation": {

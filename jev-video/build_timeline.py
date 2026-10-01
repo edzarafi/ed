@@ -1,5 +1,7 @@
-"""Lay scenes out on one timeline from voice durations, build the full voice track,
-the ducked music bed, and build/timeline.js for the animation page."""
+"""פורש את הסצנות על ציר זמן אחד לפי אורך הקריינות, בונה את רצועת הקול המלאה,
+את המוזיקה (שיורדת בווליום בזמן דיבור), ואת build/timeline.js לדף האנימציה.
+
+הרצה:  tts/.venv/bin/python build_timeline.py"""
 import json, subprocess, sys
 import numpy as np, soundfile as sf
 
@@ -8,11 +10,11 @@ B = f"{ROOT}/build"
 narr = json.load(open(f"{ROOT}/narration.json"))
 tim = json.load(open(f"{B}/voice/timings.json"))
 
-# extra breathing room for scenes with a visual beat before/after the voice
+# זמן נוסף לסצנות שיש בהן רגע ויזואלי לפני הקריינות או אחריה
 LEAD = {"hook": 1.2, "intro": 1.6, "outro": 0.8}
 TAIL = {"outro": 5.5, "reality": 1.4, "calibration": 1.2, "how": 1.0}
 
-# subtitle text: what was spoken, with names and numbers written the normal way
+# טקסט הכתוביות: מה שנאמר, עם שמות ומספרים בכתיב הרגיל
 SUBS = [
     ("צ'אט ג'י פי טי", "ChatGPT"), ("צ'אטבוטים", "צ'אטבוטים"),
     ("טייפסייף", "TypeSafe"), ("אופן איי איי", "OpenAI"), ("סיסטם וואן", "System One"),
@@ -42,7 +44,7 @@ for sc in narr:
     t += dur
 total = round(t, 3)
 
-# voice track
+# רצועת הקול
 voice = np.zeros(int(total * SR) + SR, np.float32)
 for s in scenes:
     a, sr = sf.read(f"{B}/voice/{s['id']}.wav", dtype="float32")
@@ -53,7 +55,7 @@ for s in scenes:
 voice = voice[: int(total * SR)]
 sf.write(f"{B}/voice_full.wav", voice, SR)
 
-# music bed, ducked under the narration
+# המוזיקה, מונמכת מתחת לקריינות
 subprocess.run([sys.executable, f"{ROOT}/music/gen_music.py", str(total), f"{B}/music.wav"], check=True)
 music, _ = sf.read(f"{B}/music.wav", dtype="float32")
 music = music[: len(voice)]
@@ -61,7 +63,7 @@ env = np.abs(voice)
 win = int(0.25 * SR)
 env = np.convolve(env, np.ones(win) / win, mode="same")
 speaking = (env > 0.01).astype(np.float32)
-# smooth gain changes (attack ~0.15s, release ~0.6s) via moving average on the mask
+# החלקת שינויי הווליום (כניסה ~0.15 שניות, יציאה ~0.6 שניות) בעזרת ממוצע נע
 speaking = np.convolve(speaking, np.ones(int(0.5 * SR)) / int(0.5 * SR), mode="same")
 gain = 0.42 - 0.26 * np.clip(speaking * 1.6, 0, 1)
 mix = music * gain[:, None] + voice[:, None] * 0.95

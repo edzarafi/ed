@@ -1,3 +1,6 @@
+"""כלי בדיקה: מנקד משפט אחד ומקריא אותו לקובץ.
+
+הרצה:  .venv/bin/python say.py "טקסט" out.wav"""
 import sys, types
 sys.modules['sounddevice'] = types.ModuleType('sounddevice')
 from israwave import IsraWave

@@ -12,17 +12,17 @@ document.querySelectorAll("#introLogo, #outroLogo, #brandMark").forEach(el => (e
 $("#introLogo").style.color = "#F6F1EA";
 $("#outroLogo").style.color = "#F6F1EA";
 
-// scene visibility: cross-fade in/out
+// הופעה והיעלמות של סצנות (מעבר הדרגתי)
 TL.scenes.forEach((s, i) => {
   const el = $("#s-" + s.id);
   tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "power1.out" }, Math.max(0, s.start - 0.15));
   if (i < TL.scenes.length - 1) tl.to(el, { opacity: 0, duration: 0.4, ease: "power1.in" }, s.start + s.dur - 0.35);
 });
-// drifting background glow
+// זוהר רקע שנע לאט
 tl.fromTo("#g1", { x: 0, y: 0 }, { x: 900, y: 300, duration: TL.total, ease: "sine.inOut" }, 0);
 tl.fromTo("#g2", { x: 0, y: 0 }, { x: -700, y: -250, duration: TL.total, ease: "sine.inOut" }, 0);
 tl.fromTo("#grid", { y: 0 }, { y: 80, duration: TL.total, ease: "none" }, 0);
-// corner brand from after the intro until the outro
+// הלוגו בפינה: מאחרי הפתיחה ועד הסיום
 tl.to("#brand", { opacity: 0.9, duration: 0.6 }, SC.company.start + 0.3);
 tl.to("#brand", { opacity: 0, duration: 0.4 }, SC.outro.start);
 
@@ -95,7 +95,7 @@ tl.to("#brand", { opacity: 0, duration: 0.4 }, SC.outro.start);
   tl.to("#h-eng", { scale: 1.12, duration: 0.18, yoyo: true, repeat: 1 }, t2 + 0.6);
   tl.from("#h-ar3", { scaleX: 0, transformOrigin: "100% 50%", duration: 0.25 }, t2 + 0.8);
   tl.from("#h-a", { x: 60, opacity: 0, duration: 0.5, ease }, t2 + 0.95);
-  // all answers land together: that is the point of the model
+  // כל התשובות מגיעות יחד: זו בדיוק הנקודה של המודל
   tl.from("#h-a .a", { opacity: 0, x: 30, duration: 0.35, ease }, t2 + 1.2);
   tl.from("#h-a .conf", { opacity: 0, duration: 0.4 }, t2 + d2 * 0.75);
 }
@@ -164,7 +164,7 @@ tl.to("#brand", { opacity: 0, duration: 0.4 }, SC.outro.start);
 
 /* 11 calibration */
 {
-  // 60 cases from the jev-latest run: 40 at confidence 1.000 (all right), 15 right below 1.000, 5 misses
+  // 60 המקרים מהרצת jev-latest: 40 בביטחון 1.000 (כולם נכונים), 15 נכונים מתחת ל-1.000, ו-5 טעויות
   const kinds = [...Array(40).fill("hi")];
   const rest = ["lo", "lo", "miss", "lo", "lo", "lo", "miss", "lo", "lo", "lo", "miss", "lo", "lo", "lo", "miss", "lo", "lo", "miss", "lo", "lo"];
   $("#dots").innerHTML = kinds.concat(rest).map(k => `<div class="dot" data-k="${k}"></div>`).join("");
@@ -223,9 +223,9 @@ tl.to("#brand", { opacity: 0, duration: 0.4 }, SC.outro.start);
   tl.to("#stage", { opacity: 0, duration: 0.8 }, TL.total - 0.8);
 }
 
-// progress bar
+// פס התקדמות
 tl.fromTo("#progress", { width: "0%" }, { width: "100%", duration: TL.total, ease: "none" }, 0);
-tl.set({}, {}, TL.total); // pin the timeline length
+tl.set({}, {}, TL.total); // קיבוע אורך ציר הזמן
 
 /* subtitles: picked per frame from the voice timings */
 const LINES = TL.scenes.flatMap(s => s.lines);

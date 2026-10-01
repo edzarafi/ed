@@ -1,13 +1,15 @@
-"""Generate Hebrew narration per scene: diacritize, fix foreign names, synthesize, join, write timings."""
+"""מייצר קריינות בעברית לכל סצנה: ניקוד, תיקון הגייה של שמות לועזיים, סינתזה, חיבור ושמירת תזמונים.
+
+הרצה:  .venv/bin/python gen_voice.py ../narration.json ../build/voice [מזהי סצנות...]"""
 import sys, types, json, re
-sys.modules['sounddevice'] = types.ModuleType('sounddevice')  # israwave imports it for playback only
+sys.modules['sounddevice'] = types.ModuleType('sounddevice')  # israwave מייבא אותו רק לניגון; אין בו צורך כאן
 import numpy as np, soundfile as sf
 from israwave import IsraWave
 from nakdimon_onnx import Nakdimon
 
 SHEVA, HPATAH, TSERE, SEGOL, PATAH, QAMATS, HOLAM, HIRIQ, DAGESH = (
     "ְ", "ֲ", "ֵ", "ֶ", "ַ", "ָ", "ֹ", "ִ", "ּ")
-# undotted word -> pronunciation-safe pointed spelling (foreign names the diacritizer gets wrong)
+# מילה בלי ניקוד -> כתיב מנוקד שנהגה נכון (שמות לועזיים שהמנקד טועה בהם)
 FIX = {
     "טייפסייף": "ט" + TSERE + "ייפ" + DAGESH + " ס" + TSERE + "ייף",
     "כהנמן": "כ" + DAGESH + QAMATS + "ה" + SHEVA + "נ" + SEGOL + "מ" + PATAH + "ן",
@@ -45,7 +47,7 @@ def main(narration_path, out_dir, only=None):
         for i, line in enumerate(sc["lines"]):
             dotted = fix(nak.compute(line))
             wav = np.asarray(tts.create(dotted, rate=1.0).samples, dtype=np.float32)
-            # trim leading/trailing near-silence
+            # חיתוך שקט בתחילת ההקלטה ובסופה
             nz = np.where(np.abs(wav) > 0.004)[0]
             if len(nz):
                 wav = wav[max(0, nz[0] - int(0.10 * sr)): nz[-1] + int(0.08 * sr)]

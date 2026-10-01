@@ -1,6 +1,8 @@
-"""Extended deck: the base 25 slides plus a section on medical documents (Jev classifies,
-Claude extracts, Jev verifies). Numbers on the case slides come from the pipeline's saved run,
-jev-docs-pipeline/outputs/results_demo.json, and are labeled as demo output."""
+"""המצגת המורחבת: 25 השקפים של המצגת הבסיסית, ועוד פרק על מסמכים רפואיים
+(Jev מסווג, Claude מחלץ, Jev מאמת). המספרים בשקפי המקרים נלקחים מההרצה השמורה של המחברת,
+jev-docs-pipeline/outputs/results_demo.json, ומסומנים כפלט של מצב demo.
+
+הרצה:  python3 build_deck_extended.py   ->  out_extended/project/"""
 import json
 import os
 
@@ -37,7 +39,7 @@ def add(sid, *a, **k):
     section(sid, *a, **k)
     new.append(sid)
 
-# divider ---------------------------------------------------------------------------------------
+# שקף פתיחת פרק ---------------------------------------------------------------------------------------
 add("med-divider", f"""
 {eyebrow("חלק 3", "#14102A")}
 <p style="font-size:110px;font-weight:900;line-height:1.1;color:#14102A;text-align:right">{r("מסמכים רפואיים")}</p>
@@ -46,7 +48,7 @@ add("med-divider", f"""
 """, "החלק הזה עוסק בדוגמה מורכבת: תהליך שלם על מסמכים רפואיים. Jev מסווג את המסמך, Claude מחלץ ממנו נתונים, ו-Jev בודק כל נתון שחולץ ונותן לו ציון ביטחון. כל מה שמוצג כאן אפשר להריץ מהמחברת jev_medical_pipeline.ipynb.",
     bg=PINK, color="#14102A", footer=False, layout="display:flex;flex-direction:column;gap:24px;padding:128px;justify-content:center")
 
-# why hard --------------------------------------------------------------------------------------
+# למה זה קשה --------------------------------------------------------------------------------------
 def hard(t, d, ex):
     return card(f'{h3(t, size=40)}{para(d, 28, MUTED)}<div style="flex:1"></div>'
                 f'<p style="font-size:26px;font-weight:400;color:{INK};background:{BG2};border-radius:12px;padding:14px 18px;text-align:right">{r(ex)}</p>')
@@ -59,7 +61,7 @@ add("med-hard", f"""
      hard("מחיר הטעות", "שדה שגוי במערכת רפואית הוא סיכון בטיחותי", "צריך לדעת מתי לא לסמוך"), gap=28, extra=";flex:1")}
 """, "למה מסמכים רפואיים קשים לעיבוד אוטומטי: יש המון סוגים, הרבה מהמידע מנוסח כשלילה, יחידות ומינונים קלים לבלבול, ומחיר הטעות גבוה. לכן לא מספיק לחלץ. צריך גם לדעת עד כמה אפשר לסמוך על כל שדה.")
 
-# architecture ----------------------------------------------------------------------------------
+# ארכיטקטורה ----------------------------------------------------------------------------------
 def stage(n, who, c, what, why):
     return card(f'<p style="font-family:{LAT};font-size:26px;font-weight:500;color:{c};text-align:right">{n}</p>'
                 f'<p style="font-family:{LAT};font-size:44px;font-weight:800;color:{c};text-align:right">{who}</p>'
@@ -79,7 +81,7 @@ add("med-arch", f"""
 </div>
 """, "המבנה: Jev מסווג בקריאה אחת עם ארבע שאלות. Claude מחלץ שדות מובנים לפי סכמה. Jev שוב, הפעם כבודק: לכל שדה שחולץ הוא שואל אם המסמך תומך בו, ומחזיר הסתברות. בסוף, קוד פשוט מנתב לפי ספים.")
 
-# division of labor -----------------------------------------------------------------------------
+# חלוקת עבודה -----------------------------------------------------------------------------
 add("med-why", f"""
 {eyebrow("למה לשלב")}
 {title("כל מודל במה שהוא טוב בו")}
@@ -92,7 +94,7 @@ add("med-why", f"""
 {para("אפשר לבנות את הכל עם Claude לבדו. היתרון כאן הוא ביטחון מספרי לכל שדה, מבודק נפרד, כמעט בלי תוספת עלות.", 30, MUTED, 300)}
 """, "חלוקת העבודה: מה שאפשר לנסח כשאלה סגורה הולך ל-Jev, ומה שדורש לכתוב ערכים הולך ל-Claude. כדאי להיות כנים: אפשר לבנות את כל התהליך עם Claude בלבד. מה ש-Jev מוסיף הוא ציון ביטחון מכויל לכל שדה, מבודק נפרד, בעלות שולית.")
 
-# documents table -------------------------------------------------------------------------------
+# טבלת המסמכים -------------------------------------------------------------------------------
 TYPE_HE = {"discharge_summary": "סיכום אשפוז", "lab_report": "תוצאות מעבדה", "er_visit": "סיכום מיון",
            "imaging_report": "פענוח הדמיה", "pathology_report": "דו״ח פתולוגי", "referral_letter": "מכתב הפניה",
            "prescription": "מרשם", "clinic_visit": "ביקור מרפאה", "administrative": "חשבונית"}
@@ -108,7 +110,7 @@ add("med-docs", f"""
 <p style="position:absolute;right:128px;bottom:110px;width:1664px;font-size:24px;color:{DIM};text-align:right">{r("כל המסמכים סינתטיים: שמות, מספרי זהות ומוסדות בדויים. jev-docs-pipeline/documents/")}</p>
 """, "אחד-עשר מסמכים סינתטיים שכתבתי: סיכום אשפוז על דלקת ריאות, תוצאות מעבדה של סוכרת לא מאוזנת, מיון עם אוטם חריף, צילום עם שבר קולס, פתולוגיה של סרטן שד, הפניה לאנדוקרינולוג בגלל השימוטו, מרשם ליתר לחץ דם, ביקור ילדים עם דלקת אוזן, CT ראש מלא בשלילות, חשבונית פיזיותרפיה, ופקס סרוק עם חשד לפרפור פרוזדורים. קודי ה-ICD-10 נבדקו מול האבחנות.")
 
-# document sample: the negation trap ------------------------------------------------------------
+# מסמך לדוגמה: מלכודת השלילה ------------------------------------------------------------
 ct = DOC("09_ct_head_negative").split("ממצאים:")[1].split("המלצה:")[0].strip().splitlines()
 ct_html = "".join(f'<p style="font-size:28px;font-weight:{700 if l.startswith(("ללא", "אין")) else 300};line-height:1.5;color:{PINK if l.startswith(("ללא", "אין")) else "#2A2440"};text-align:right">{r(l)}</p>' for l in ct if l.strip())
 add("med-sample", f"""
@@ -122,7 +124,7 @@ add("med-sample", f"""
 </div>
 """, "זה המסמך הקשה ביותר בסט: פענוח CT ראש של מטופלת בת 81 אחרי נפילה. כמעט כל שורה היא שלילה: ללא שבר, ללא דימום, אין הזזה. זה בדיוק המקום שבו חילוץ אוטומטי נוטה לטעות.")
 
-# stage 1 code ----------------------------------------------------------------------------------
+# קוד שלב 1 ----------------------------------------------------------------------------------
 add("med-s1", f"""
 {eyebrow("שלב 1 · Jev מסווג")}
 {title("ארבע שאלות, קריאה אחת")}
@@ -132,19 +134,19 @@ add("med-s1", f"""
     ("r = TypeSafeClient().system_one(", INK),
     (ind(2, "state=document_text,"), OK),
     (ind(2, "questions={"), INK),
-    (ind(4, '"doc_type": Choice(instructions="What kind of medical document is this?",'), PINKL),
-    (ind(10, 'criteria={"discharge_summary": "...", "lab_report": "...", ...}),  # 9 types'), PINKL),
+    (ind(4, '"doc_type": Choice(instructions="איזה סוג של מסמך רפואי זה?",'), PINKL),
+    (ind(10, 'criteria={"discharge_summary": "סיכום אשפוז...", "lab_report": ..., ...}),'), PINKL),
     (ind(4, '"specialty": Choice(criteria={"cardiology": None, "oncology": None, ...}),'), PINKL),
-    (ind(4, '"urgency": Score(criteria=["No action", "Weeks", "Days", "24-48h", "Emergency"]),'), PINKL),
-    (ind(4, '"contains_phi": Noul(instructions="Does it contain a name or ID number?"),'), PINKL),
+    (ind(4, '"urgency": Score(criteria=["לא נדרשת פעולה", "שבועות", "ימים", "24-48 שעות", "חירום"]),'), PINKL),
+    (ind(4, '"contains_phi": Noul(instructions="האם המסמך מכיל שם או מספר זהות?"),'), PINKL),
     (ind(2, "})"), INK),
     ("", INK),
     ('r.choices["doc_type"].choice, r.choices["doc_type"].confidence   # "imaging_report", 0.97', MUTED),
 ])}
-{para("סיווג בביטחון נמוך מ-0.75 לא ממשיך הלאה. המסמך עובר למיון ידני.", 30, MUTED, 300)}
+{para("סיווג בביטחון נמוך מ-0.75 לא ממשיך הלאה. המסמך עובר למיון ידני. ההנחיות למודל בעברית כברירת מחדל; PROMPT_LANG=en מחליף לאנגלית, לצורך השוואה.", 28, MUTED, 300)}
 """, "שלב 1: ארבע שאלות בקריאה אחת ל-Jev. Choice לסוג המסמך מתוך 9 סוגים, Choice לתחום הרפואי, Score לדחיפות בסולם 0 עד 4, ו-Noul לשאלה אם יש במסמך פרטים מזהים. זה ה-SDK הרשמי לפייתון, typesafe-sdk.")
 
-# stage 2 code ----------------------------------------------------------------------------------
+# קוד שלב 2 ----------------------------------------------------------------------------------
 add("med-s2", f"""
 {eyebrow("שלב 2 · Claude מחלץ")}
 {title("סכמה קבועה, ציטוט לכל שדה")}
@@ -156,7 +158,7 @@ add("med-s2", f"""
     (ind(2, "medications: list[Medication]"), INK),
     (ind(2, "lab_values: list[LabValue]"), INK),
     (ind(2, "follow_up: str | None"), INK),
-    (ind(2, "evidence: list[Evidence]  # verbatim quote"), MUTED),
+    (ind(2, "evidence: list[Evidence]  # ציטוט מילולי"), MUTED),
     ("", INK),
     ("resp = claude.messages.parse(", INK),
     (ind(2, 'model="claude-opus-5-5",'), OK),
@@ -170,7 +172,7 @@ add("med-s2", f"""
 </div>
 """, "שלב 2: Claude מחלץ לפי סכמת Pydantic. ה-structured outputs מבטיח שהפורמט תקין, אבל לא שהערכים נכונים, ולכן צריך שלב אימות. ביקשנו גם ציטוט מילולי לכל שדה, וההוראה למודל אומרת במפורש לא להסיק אבחנה שהמסמך שולל.")
 
-# stage 2 output --------------------------------------------------------------------------------
+# פלט שלב 2 --------------------------------------------------------------------------------
 e1 = GT["01_discharge_pneumonia"]["extraction"]
 add("med-s2out", f"""
 {eyebrow("שלב 2 · פלט לדוגמה (מסמך 01, סיכום אשפוז)")}
@@ -186,17 +188,17 @@ add("med-s2out", f"""
 <p style="position:absolute;right:128px;bottom:110px;width:1664px;font-size:24px;color:{DIM};text-align:right">{r("הערכים בשקף הם החילוץ הנכון מקובץ הייחוס (ground_truth.json), לא פלט שנמדד מ-Claude.")}</p>
 """, "כך נראה חילוץ נכון של סיכום האשפוז: אבחנה, קוד, אבחנות משניות, תרופות בשחרור, ערכי מעבדה חריגים והמשך טיפול. אלה ערכי הייחוס שמולם ההערכה בודקת את Claude במצב live.")
 
-# stage 3 code ----------------------------------------------------------------------------------
+# קוד שלב 3 ----------------------------------------------------------------------------------
 add("med-s3", f"""
 {eyebrow("שלב 3 · Jev מאמת")}
 {title("שאלת כן/לא לכל שדה")}
 {codeblock([
     ("questions = {", INK),
-    (ind(2, 'f"claim_{field}": Noul(instructions=f"The extractor says {field} = «{value}». "'), PINKL),
-    (ind(26, '"Is this value stated in, or directly entailed by, the document?")'), PINKL),
+    (ind(2, 'f"claim_{field}": Noul(instructions=f"לפי החילוץ, {field} = «{value}». "'), PINKL),
+    (ind(26, '"האם הערך הזה כתוב במסמך, או נובע ממנו ישירות?")'), PINKL),
     (ind(2, "for field, value in claims_from(ex)"), INK),
     ("}", INK),
-    ('questions["icd_consistent"] = Noul(instructions=f"Is {ex.icd10_code} correct for the main diagnosis?")', PINKL),
+    ('questions["icd_consistent"] = Noul(instructions=f"האם {ex.icd10_code} קוד נכון לאבחנה העיקרית?")', PINKL),
     ('questions["extraction_quality"] = Score(criteria=QUALITY_LEVELS)        # 0-4', PINKL),
     ("", INK),
     ('r = jev.system_one(state={"document": text, "extracted": ex.model_dump()}, questions=questions)', INK),
@@ -205,7 +207,7 @@ add("med-s3", f"""
 {row(pill("≥ 0.90 · קבלה", "#06140D", OK, OK, 28, 800), pill("0.60–0.90 · בדיקה מהירה", INK, BG2, PINKL, 28), pill("< 0.60 · נדחה", "#FFFFFF", "#7A2030", BAD, 28, 800), gap=20, extra=";justify-content:start")}
 """, "שלב 3: לכל שדה שחולץ, Jev מקבל את המסמך ואת החילוץ, ועונה בהסתברות על השאלה אם המסמך באמת אומר את זה. ההסתברות היא ה-confidence של השדה. מעל 0.9 מתקבל, בין 0.6 ל-0.9 עובר לבדיקה מהירה, ומתחת ל-0.6 נדחה.")
 
-# case: negation trap ---------------------------------------------------------------------------
+# מקרה: מלכודת השלילה ---------------------------------------------------------------------------
 def field_rows(doc_id):
     out = []
     for f in RES[doc_id]["fields"]:
@@ -224,7 +226,7 @@ add("med-case-ct", f"""
 {demo_note()}
 """, "מבחן כאוס: שתלנו בחילוץ של ה-CT את האבחנה 'שבר בעצמות הגולגולת' עם קוד S02.0. שלב 3 נתן לשני השדות האלה ביטחון נמוך מאוד, קיבל את הגיל ואת המשך הטיפול, והמסמך נותב לבדיקה אנושית. חשוב: בדמו את Jev מחליפה היוריסטיקה, ולכן המספרים ממחישים את הזרימה. את ההתנהגות של Jev עצמו בודקים במצב live.")
 
-# case: dose ------------------------------------------------------------------------------------
+# מקרה: מינון ------------------------------------------------------------------------------------
 add("med-case-dose", f"""
 {eyebrow("מקרה 2 · מבחן כאוס על מסמך 08")}
 {title("מינון כפול לילד בן 3")}
@@ -238,7 +240,7 @@ add("med-case-dose", f"""
 {demo_note()}
 """, "מקרה שני: טעות מינון קלאסית. במסמך כתוב 90 מ״ג לק״ג ליום, כלומר 675 מ״ג פעמיים ביום לילד של 15 ק״ג. בחילוץ השתול נרשם 1350 מ״ג לפעם, פי שניים. שלב 3 דחה את השדה הזה וקיבל את הפרצטמול הנכון.")
 
-# routing outcome -------------------------------------------------------------------------------
+# תוצאות הניתוב -------------------------------------------------------------------------------
 from collections import Counter
 cnt = Counter(x["route"] for x in RUN["results"])
 RHE = {"auto_accept": ("קבלה אוטומטית", OK), "quick_review": ("בדיקה מהירה", PINKL), "human_review": ("בדיקה אנושית", BAD),
@@ -258,7 +260,7 @@ add("med-routing", f"""
 {demo_note()}
 """, "על כל אחד-עשר המסמכים: שמונה התקבלו אוטומטית, שניים עם הטעויות השתולות הלכו לבדיקה אנושית, והחשבונית לארכיון. הטבלה מסבירה מה כל מדד בודק כשמריצים במצב live. בדמו המספרים מושלמים כי ההיוריסטיקה פשוטה והמסמכים נכתבו יחד איתה. אל תסיקו מהם דבר על Jev.")
 
-# cost ------------------------------------------------------------------------------------------
+# עלות ------------------------------------------------------------------------------------------
 add("med-cost", f"""
 {eyebrow("עלות לכל מסמך · הערכה לפי מחירון")}
 {title("האימות כמעט חינם")}
@@ -271,14 +273,15 @@ add("med-cost", f"""
 <p style="position:absolute;right:128px;bottom:110px;width:1664px;font-size:24px;color:{DIM};text-align:right">{r("מספרי הטוקנים הם הערכה למסמך של עמוד אחד. המחברת מחשבת את העלות בפועל מה-usage במצב live.")}</p>
 """, "חישוב גס לפי המחירונים: חילוץ עם Claude Opus 5.5 עולה בערך שני סנט למסמך של עמוד, ושני הסבבים של Jev יחד עולים בערך שתי מאיות הסנט, כלומר כאחוז מהחילוץ. אלה הערכות; המחברת מחשבת את העלות האמיתית מה-usage כשמריצים live.")
 
-# how to run ------------------------------------------------------------------------------------
+# איך מריצים ------------------------------------------------------------------------------------
 add("med-run", f"""
 {eyebrow("להריץ בעצמכם")}
 {title("הכל במחברת אחת")}
 {codeblock([
     ("cd jev-docs-pipeline", INK),
     ("pip install -r requirements.txt", INK),
-    ("export TYPESAFE_API_KEY=...  ANTHROPIC_API_KEY=...   # without keys: demo mode", MUTED),
+    ("export TYPESAFE_API_KEY=...  ANTHROPIC_API_KEY=...   # בלי מפתחות: מצב demo", MUTED),
+    ("export PROMPT_LANG=he        # או en, להשוואה", MUTED),
     ("jupyter notebook jev_medical_pipeline.ipynb", OK),
 ], size=26)}
 {table(["קובץ", "מה יש בו"], [
@@ -290,7 +293,7 @@ add("med-run", f"""
 ], [40, 60], size=26)}
 """, "כדי להריץ: מתקינים את התלויות, מגדירים שני מפתחות API ופותחים את המחברת. בלי מפתחות היא רצה במצב demo. ב-GitHub Actions יש workflow שמריץ את הטסטים ואת המחברת בכל push, ובהפעלה ידנית אפשר לבחור live עם המפתחות ששמורים כ-secrets.")
 
-# caveats ---------------------------------------------------------------------------------------
+# הסתייגויות ---------------------------------------------------------------------------------------
 lim = lambda t: (f'<div style="display:flex;flex-direction:row-reverse;align-items:start;gap:24px">'
                  f'<x-icon name="Warning" style="color:{PINKL};width:44px;height:44px"></x-icon>{para(t, 32, INK, 300)}</div>')
 add("med-caveats", f"""
@@ -305,7 +308,7 @@ add("med-caveats", f"""
 </div>
 """, "מה הדוגמה לא מוכיחה: לא נבדק שהביצועים של Jev בעברית טובים כמו באנגלית. האימות בודק עקביות עם המסמך ולא נכונות קלינית. הספים צריכים כיול. ובמסמכים אמיתיים יש שאלות של פרטיות ורגולציה. זה כלי שמצמצם עבודה ידנית, לא מחליף אותה.")
 
-# assemble ----------------------------------------------------------------------------------------
+# הרכבת המצגת ----------------------------------------------------------------------------------------
 base = [s for s in B.order if s not in new]
 i = base.index("ex-ops") + 1
 order = base[:i] + new + base[i:]

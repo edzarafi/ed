@@ -1,5 +1,5 @@
-"""Offline tests. The live backends run against the real typesafe-sdk and anthropic SDKs with mocked HTTP,
-so request shapes and response parsing are checked without API keys or network."""
+"""טסטים שרצים בלי רשת. המימושים של מצב live רצים מול ה-SDK האמיתיים (typesafe-sdk ו-anthropic)
+עם HTTP מדומה, כך שנבדקים מבנה הבקשות והפענוח של התשובות בלי מפתחות API ובלי חיבור לאינטרנט."""
 import json
 import sys
 from pathlib import Path
@@ -68,24 +68,25 @@ def test_live_pipeline_request_shapes(doc, reference):
     jev, ext = live_backends(jev_seen, claude_seen, reference)
     rec = P.run_document(doc, jev, ext)
 
-    # Stage 1 + Stage 3 hit the System One endpoint with plain wire questions
+    # שלב 1 ושלב 3 פונים ל-System One עם שאלות נקיות (בלי מפתחות העזר של הדמו)
     assert [p for p, _ in jev_seen] == ["/v1/systemone", "/v1/systemone"]
     stage1, stage3 = jev_seen[0][1], jev_seen[1][1]
     assert stage1["model"] == "jev-latest"
     assert set(stage1["questions"]) == {"doc_type", "specialty", "urgency", "contains_phi"}
-    assert stage1["questions"]["urgency"]["criteria"] == P.URGENCY_LEVELS
+    assert stage1["questions"]["urgency"]["criteria"] == P.PROMPTS["he"]["urgency"]
+    assert stage1["questions"]["doc_type"]["instructions"] == "איזה סוג של מסמך רפואי זה?"
     assert all(not k.startswith("_") for q in stage3["questions"].values() for k in q)
     assert stage3["state"]["document"] == doc.text and "evidence" not in stage3["state"]["extracted"]
     assert "icd_consistent" in stage3["questions"] and "extraction_quality" in stage3["questions"]
 
-    # Stage 2 asks Claude for schema-constrained output
+    # שלב 2 מבקש מ-Claude פלט לפי סכמה
     path, body = claude_seen[0]
     assert path == "/v1/messages" and body["model"] == "claude-opus-5-5"
     assert body["output_config"]["format"]["type"] == "json_schema"
     assert body["output_config"]["effort"] == "low"
     assert "icd10_code" in body["output_config"]["format"]["schema"]["properties"]
 
-    # responses parsed into the routing record
+    # התשובות מפוענחות לרשומת הניתוב
     assert rec["classification"]["doc_type"]["confidence"] == pytest.approx(0.93)
     assert rec["extraction"]["icd10_code"] == "J18.1"
     assert rec["claude_usage"] == {"input_tokens": 900, "output_tokens": 300}
@@ -111,3 +112,25 @@ def test_routing_thresholds():
     assert P.route(t, {"a": 0.95, "b": 0.7})[0] == "quick_review"
     assert P.route(t, {"a": 0.4})[0] == "human_review"
     assert P.route(P.Ans("choice", choice="lab_report", confidence=0.5), {"a": 0.99})[0] == "human_triage"
+
+
+def test_english_prompts_option(doc, reference):
+    """PROMPT_LANG="en" שולח את אותן שאלות באנגלית, כדי להשוות בין השפות בהרצת live."""
+    jev_seen, claude_seen = [], []
+    jev, ext = live_backends(jev_seen, claude_seen, reference)
+    ext.lang = "en"
+    P.run_document(doc, jev, ext, lang="en")
+    stage1 = jev_seen[0][1]
+    assert stage1["questions"]["doc_type"]["instructions"] == "What kind of medical document is this?"
+    assert claude_seen[0][1]["system"].startswith("You extract structured data")
+    assert set(stage1["questions"]["doc_type"]["criteria"]) == set(P.PROMPTS["he"]["doc_types"])
+
+
+def test_hebrew_extraction_prompt(doc, reference):
+    jev_seen, claude_seen = [], []
+    jev, ext = live_backends(jev_seen, claude_seen, reference)
+    P.run_document(doc, jev, ext)
+    body = claude_seen[0][1]
+    assert body["system"].startswith("אתה מחלץ נתונים מובנים")
+    assert "סוג המסמך (לפי המסווג)" in body["messages"][0]["content"]
+    assert "קוד ICD-10" in json.dumps(body["output_config"]["format"]["schema"], ensure_ascii=False)

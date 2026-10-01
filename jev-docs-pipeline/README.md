@@ -20,7 +20,14 @@ jupyter notebook jev_medical_pipeline.ipynb      # או: jupyter nbconvert --exe
 | `live` | כש-`TYPESAFE_API_KEY` ו-`ANTHROPIC_API_KEY` מוגדרים | Jev ו-Claude אמיתיים |
 | `demo` | אחרת | **היוריסטיקה מילולית במקום Jev**, ושחזור של תשובת הייחוס במקום Claude. ממחיש את הזרימה בלבד |
 
-ב-GitHub Actions ‏(`.github/workflows/jev-pipeline.yml`), כל push מריץ את הטסטים ואת המחברת במצב demo. הרצה ידנית עם `mode=live` משתמשת ב-secrets של המאגר.
+**שפת ההנחיות למודלים:** `PROMPT_LANG=he` (ברירת מחדל) או `PROMPT_LANG=en`. השאלות ל-Jev וההנחיה ל-Claude כתובות בשתי השפות ב-`pipeline.py` (המילון `PROMPTS`). מומלץ להריץ live בשתיהן ולהשוות את ההערכה.
+
+**GitHub Actions** ‏(`.github/workflows/jev-pipeline.yml`): כל push מריץ את הטסטים ואת המחברת במצב demo. להרצת live:
+1. מגדירים במאגר את ה-secrets `TYPESAFE_API_KEY` ו-`ANTHROPIC_API_KEY` (Settings ← Secrets and variables ← Actions).
+2. בלשונית Actions בוחרים jev-medical-pipeline ← Run workflow, ובוחרים `mode=live` ושפה.
+3. התוצאות נשמרות כ-artifact בדף ההרצה.
+
+הוראות מפורטות יותר, כולל הרצה ב-Colab, נמצאות ב-README הראשי של המאגר.
 
 ## קבצים
 

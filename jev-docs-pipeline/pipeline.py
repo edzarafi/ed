@@ -1,16 +1,19 @@
-"""Medical document pipeline: Jev classifies, Claude extracts, Jev scores the extraction.
+"""תהליך עיבוד מסמכים רפואיים: Jev מסווג, Claude מחלץ, Jev נותן ציון לחילוץ.
 
-Stage 1  Jev (System One)  -> document type, specialty, urgency, PHI flag      (one call, all questions in parallel)
-Stage 2  Claude            -> structured fields + a verbatim evidence quote per field
-Stage 3  Jev (System One)  -> per-field "is this supported by the document?" probability,
-                              ICD/diagnosis consistency, overall extraction quality
-Routing  thresholds on the Stage 1 and Stage 3 confidences decide: auto-accept / review / human.
+שלב 1  Jev (System One)  -> סוג מסמך, תחום רפואי, דחיפות, פרטים מזהים   (קריאה אחת, כל השאלות במקביל)
+שלב 2  Claude            -> שדות מובנים + ציטוט ראיה מילולי לכל שדה
+שלב 3  Jev (System One)  -> לכל שדה: הסתברות ש"המסמך תומך בערך הזה",
+                            התאמת קוד ICD לאבחנה, וציון איכות כולל לחילוץ
+ניתוב  ספים על הביטחון משלב 1 ומשלב 3 קובעים: קבלה אוטומטית / בדיקה מהירה / בדיקה אנושית / מיון ידני / ארכיון.
 
-Two backends per model:
-  live  real APIs (typesafe-sdk, anthropic), needs TYPESAFE_API_KEY and ANTHROPIC_API_KEY
-  demo  offline stand-ins so the notebook runs anywhere. DemoJev is a lexical heuristic, NOT Jev;
-        DemoExtractor replays the reference extraction from documents/ground_truth.json.
-        Demo numbers illustrate the flow only; they are not model results.
+לכל מודל יש שני מימושים (backends):
+  live  קריאות אמיתיות ל-API (typesafe-sdk, anthropic). דורש TYPESAFE_API_KEY ו-ANTHROPIC_API_KEY.
+  demo  תחליפים שרצים בלי רשת, כדי שהמחברת תרוץ בכל מקום. DemoJev הוא היוריסטיקה מילולית, לא Jev.
+        DemoExtractor משחזר את החילוץ הנכון מתוך documents/ground_truth.json.
+        המספרים בדמו ממחישים את הזרימה בלבד. הם אינם תוצאות של מודל.
+
+שפת ההנחיות למודלים: PROMPT_LANG = "he" (ברירת מחדל) או "en".
+לא מצאנו תיעוד שמאשר ש-Jev עובד בעברית טוב כמו באנגלית, ולכן כדאי להשוות את שתי השפות בהרצת live.
 """
 from __future__ import annotations
 
@@ -29,9 +32,10 @@ ROOT = Path(__file__).resolve().parent
 DOCS_DIR = ROOT / "documents"
 CLAUDE_MODEL = "claude-opus-5-5"
 JEV_MODEL = "jev-latest"
+PROMPT_LANG = os.environ.get("PROMPT_LANG", "he")   # "he" או "en"
 
 # ---------------------------------------------------------------------------------------------
-# Documents
+# מסמכים
 # ---------------------------------------------------------------------------------------------
 
 @dataclass
@@ -48,90 +52,166 @@ def load_ground_truth(docs_dir: Path = DOCS_DIR) -> dict:
     return json.loads((docs_dir / "ground_truth.json").read_text(encoding="utf-8"))
 
 # ---------------------------------------------------------------------------------------------
-# Stage 1: classification questions (Jev)
+# ההנחיות למודלים, בעברית ובאנגלית
+# המפתחות (discharge_summary וכו') נשארים באנגלית כי הקוד מסתמך עליהם; התיאורים מתורגמים.
 # ---------------------------------------------------------------------------------------------
 
-DOC_TYPES = {
-    "discharge_summary": "Hospital discharge summary: admission course, diagnoses and discharge instructions",
-    "lab_report": "Laboratory results report: tests, values, units and reference ranges",
-    "er_visit": "Emergency department visit summary",
-    "imaging_report": "Radiology / imaging report (X-ray, CT, MRI, ultrasound) with findings and impression",
-    "pathology_report": "Pathology report on a tissue sample or biopsy",
-    "referral_letter": "Letter from one clinician referring the patient to another clinic or specialist",
-    "prescription": "Prescription listing medications to dispense",
-    "clinic_visit": "Outpatient clinic visit summary (complaint, exam, diagnosis, treatment)",
-    "administrative": "Non-clinical document: invoice, receipt, insurance or billing paperwork",
+PROMPTS = {
+    "he": {
+        "doc_types": {
+            "discharge_summary": "סיכום אשפוז: מהלך האשפוז, אבחנות והמלצות בשחרור",
+            "lab_report": "דו״ח תוצאות מעבדה: בדיקות, ערכים, יחידות וטווחי תקין",
+            "er_visit": "סיכום ביקור בחדר מיון / ברפואה דחופה",
+            "imaging_report": "פענוח הדמיה (רנטגן, CT, MRI, אולטרסאונד) עם ממצאים ורושם",
+            "pathology_report": "דו״ח פתולוגי על דגימת רקמה או ביופסיה",
+            "referral_letter": "מכתב שבו רופא מפנה מטופל למרפאה או למומחה אחר",
+            "prescription": "מרשם עם רשימת תרופות לניפוק",
+            "clinic_visit": "סיכום ביקור במרפאה (תלונה, בדיקה, אבחנה, טיפול)",
+            "administrative": "מסמך לא קליני: חשבונית, קבלה, ביטוח או תשלום",
+        },
+        "specialty_none": "אין תחום קליני רלוונטי (למשל מסמך תשלום)",
+        "urgency": [
+            "לא נדרשת פעולה קלינית",
+            "מעקב שגרתי בתוך שבועות",
+            "נדרש טיפול בתוך ימים",
+            "נדרש טיפול בתוך 24–48 שעות (למשל אבחנה חדשה של סרטן שדורשת הפניה)",
+            "מצב חירום מסכן חיים, פעולה מיידית",
+        ],
+        "q_doc_type": "איזה סוג של מסמך רפואי זה?",
+        "q_specialty": "לאיזה תחום רפואי המסמך הזה שייך?",
+        "q_urgency": "באיזו דחיפות המסמך הזה מחייב פעולה קלינית?",
+        "q_phi": "האם המסמך מכיל פרטים מזהים (שם, מספר זהות)?",
+        "phi_true": "מופיע שם של מטופל או מספר זהות",
+        "phi_false": "אין פרטים מזהים",
+        "quality": [
+            "רובו שגוי או ריק",
+            "כמה שדות חשובים שגויים או חסרים",
+            "ברובו נכון, עם טעות או השמטה חשובה אחת",
+            "נכון, עם השמטות קלות בלבד",
+            "מלא, וכל הערכים נתמכים במסמך",
+        ],
+        "q_claim": "לפי החילוץ, {label} = «{value}». האם הערך הזה כתוב במסמך, או נובע ממנו ישירות?",
+        "claim_true": "המסמך מציין את הערך הזה (הניסוח יכול להיות מעט שונה)",
+        "claim_false": "המסמך לא מציין אותו, מציין ערך אחר, או שולל אותו",
+        "q_icd": "האם קוד ICD-10 {code} הוא קוד נכון לאבחנה העיקרית שמתוארת במסמך?",
+        "q_quality": "דרג עד כמה הרשומה שחולצה (state.extracted) מלאה ונכונה ביחס למסמך (state.document).",
+        "extract_system": (
+            "אתה מחלץ נתונים מובנים ממסמכים קליניים. העתק ערכים בדיוק כפי שהם כתובים במסמך "
+            "(טקסט בעברית נשאר בעברית). כששדה לא מופיע, השתמש ב-null. לעולם אל תסיק אבחנה שהמסמך שולל: "
+            "למשל, 'ללא עדות לשבר' פירושו שאין שבר. לכל שדה שאינו null, הוסף פריט evidence עם ציטוט מדויק "
+            "של הקטע שתומך בו. תאריכים בפורמט YYYY-MM-DD."
+        ),
+        "extract_user": "סוג המסמך (לפי המסווג): {doc_type}\n\n<document>\n{text}\n</document>",
+    },
+    "en": {
+        "doc_types": {
+            "discharge_summary": "Hospital discharge summary: admission course, diagnoses and discharge instructions",
+            "lab_report": "Laboratory results report: tests, values, units and reference ranges",
+            "er_visit": "Emergency department visit summary",
+            "imaging_report": "Radiology / imaging report (X-ray, CT, MRI, ultrasound) with findings and impression",
+            "pathology_report": "Pathology report on a tissue sample or biopsy",
+            "referral_letter": "Letter from one clinician referring the patient to another clinic or specialist",
+            "prescription": "Prescription listing medications to dispense",
+            "clinic_visit": "Outpatient clinic visit summary (complaint, exam, diagnosis, treatment)",
+            "administrative": "Non-clinical document: invoice, receipt, insurance or billing paperwork",
+        },
+        "specialty_none": "No clinical specialty applies (e.g. billing paperwork)",
+        "urgency": [
+            "No clinical action needed",
+            "Routine follow-up within weeks",
+            "Needs attention within days",
+            "Needs attention within 24-48 hours (e.g. new cancer diagnosis needing referral)",
+            "Life-threatening emergency, immediate action",
+        ],
+        "q_doc_type": "What kind of medical document is this?",
+        "q_specialty": "Which clinical specialty should own this document?",
+        "q_urgency": "How urgently does this document require clinical action?",
+        "q_phi": "Does the document contain personally identifying details (name, ID number)?",
+        "phi_true": "A patient name or ID number appears",
+        "phi_false": "No identifying details",
+        "quality": [
+            "Mostly wrong or empty",
+            "Several important fields wrong or missing",
+            "Mostly right, one important error or omission",
+            "Right, minor omissions only",
+            "Complete and fully supported by the document",
+        ],
+        "q_claim": "The extractor says {label} = «{value}». Is this value stated in, or directly entailed by, the document?",
+        "claim_true": "The document states this value (wording may differ slightly)",
+        "claim_false": "The document does not state it, states a different value, or rules it out",
+        "q_icd": "Is ICD-10 code {code} a correct code for the main diagnosis described in the document?",
+        "q_quality": "Rate how complete and correct the extracted record (state.extracted) is against the document (state.document).",
+        "extract_system": (
+            "You extract structured data from clinical documents. Copy values exactly as written in the document "
+            "(keep Hebrew text in Hebrew). Use null when a field is not stated; never infer a diagnosis the document "
+            "rules out (for example 'ללא עדות לשבר' means there is NO fracture). For every non-null field add an "
+            "evidence item quoting the exact supporting span. Dates as YYYY-MM-DD."
+        ),
+        "extract_user": "Document type (from the classifier): {doc_type}\n\n<document>\n{text}\n</document>",
+    },
 }
-SPECIALTIES = {
-    "internal_medicine": None, "family_medicine": None, "cardiology": None, "endocrinology": None,
-    "orthopedics": None, "oncology": None, "pediatrics": None, "emergency_medicine": None,
-    "neurology": None, "none": "No clinical specialty applies (e.g. billing paperwork)",
-}
-URGENCY_LEVELS = [
-    "No clinical action needed",
-    "Routine follow-up within weeks",
-    "Needs attention within days",
-    "Needs attention within 24-48 hours (e.g. new cancer diagnosis needing referral)",
-    "Life-threatening emergency, immediate action",
-]
+SPECIALTY_KEYS = ["internal_medicine", "family_medicine", "cardiology", "endocrinology", "orthopedics",
+                  "oncology", "pediatrics", "emergency_medicine", "neurology", "none"]
 
 
-def classification_questions() -> dict:
-    """Plain-dict questions: the wire format both the SDK and DemoJev accept."""
+def _p(lang: str | None) -> dict:
+    return PROMPTS[lang or PROMPT_LANG]
+
+# ---------------------------------------------------------------------------------------------
+# שלב 1: שאלות הסיווג (Jev)
+# ---------------------------------------------------------------------------------------------
+
+def classification_questions(lang: str | None = None) -> dict:
+    """שאלות כמילונים פשוטים: הפורמט שגם ה-SDK וגם DemoJev מקבלים."""
+    p = _p(lang)
+    specialties = {k: (p["specialty_none"] if k == "none" else None) for k in SPECIALTY_KEYS}
     return {
-        "doc_type": {"type": "choice", "instructions": "What kind of medical document is this?", "criteria": DOC_TYPES},
-        "specialty": {"type": "choice", "instructions": "Which clinical specialty should own this document?", "criteria": SPECIALTIES},
-        "urgency": {"type": "score", "instructions": "How urgently does this document require clinical action?", "criteria": URGENCY_LEVELS},
-        "contains_phi": {"type": "noul", "instructions": "Does the document contain personally identifying details (name, ID number)?",
-                         "criteria": {"true": "A patient name or ID number appears", "false": "No identifying details"}},
+        "doc_type": {"type": "choice", "instructions": p["q_doc_type"], "criteria": p["doc_types"]},
+        "specialty": {"type": "choice", "instructions": p["q_specialty"], "criteria": specialties},
+        "urgency": {"type": "score", "instructions": p["q_urgency"], "criteria": p["urgency"]},
+        "contains_phi": {"type": "noul", "instructions": p["q_phi"],
+                         "criteria": {"true": p["phi_true"], "false": p["phi_false"]}},
     }
 
 # ---------------------------------------------------------------------------------------------
-# Stage 2: extraction schema (Claude)
+# שלב 2: סכמת החילוץ (Claude)
+# שמות השדות באנגלית כי הם חלק מהקוד; התיאורים בעברית כדי שהמודל יבין מה לשים בכל שדה.
 # ---------------------------------------------------------------------------------------------
 
 class Medication(BaseModel):
-    name: str
-    dose: str | None = None
-    frequency: str | None = None
+    name: str = Field(description="שם התרופה כפי שכתוב במסמך")
+    dose: str | None = Field(default=None, description="מינון ליחידת מתן, כולל יחידות")
+    frequency: str | None = Field(default=None, description="תדירות ומשך, כפי שכתוב במסמך")
 
 
 class LabValue(BaseModel):
-    test: str
-    value: str
-    unit: str | None = None
-    flag: Literal["high", "low", "normal", "unknown"] = "unknown"
+    test: str = Field(description="שם הבדיקה")
+    value: str = Field(description="הערך כפי שכתוב במסמך")
+    unit: str | None = Field(default=None, description="יחידות")
+    flag: Literal["high", "low", "normal", "unknown"] = Field(default="unknown", description="גבוה / נמוך / תקין / לא ידוע")
 
 
 class Evidence(BaseModel):
-    field: str = Field(description="Name of the extracted field, e.g. icd10_code or medications[0]")
-    quote: str = Field(description="Verbatim span copied from the document that supports the value")
+    field: str = Field(description="שם השדה שחולץ, למשל icd10_code או medications[0]")
+    quote: str = Field(description="ציטוט מילולי מהמסמך שתומך בערך")
 
 
 class MedicalExtraction(BaseModel):
-    patient_name: str | None
-    patient_age: int | None
-    patient_sex: Literal["male", "female", "unknown"]
-    document_date: str | None = Field(description="ISO date YYYY-MM-DD of the document")
-    facility: str | None
-    primary_diagnosis: str | None = Field(description="Main diagnosis, in the document's language")
-    icd10_code: str | None
-    secondary_diagnoses: list[str]
-    medications: list[Medication]
-    lab_values: list[LabValue]
-    follow_up: str | None
-    evidence: list[Evidence]
-
-
-EXTRACTION_SYSTEM = (
-    "You extract structured data from clinical documents. Copy values exactly as written in the document "
-    "(keep Hebrew text in Hebrew). Use null when a field is not stated; never infer a diagnosis the document "
-    "rules out (for example 'ללא עדות לשבר' means there is NO fracture). For every non-null field add an "
-    "evidence item quoting the exact supporting span."
-)
+    patient_name: str | None = Field(description="שם המטופל")
+    patient_age: int | None = Field(description="גיל המטופל בשנים")
+    patient_sex: Literal["male", "female", "unknown"] = Field(description="מין המטופל")
+    document_date: str | None = Field(description="תאריך המסמך בפורמט YYYY-MM-DD")
+    facility: str | None = Field(description="המוסד או המרפאה שהוציאו את המסמך")
+    primary_diagnosis: str | None = Field(description="האבחנה העיקרית, בשפת המסמך")
+    icd10_code: str | None = Field(description="קוד ICD-10 של האבחנה העיקרית, אם מופיע")
+    secondary_diagnoses: list[str] = Field(description="אבחנות משניות")
+    medications: list[Medication] = Field(description="תרופות שניתנו או הומלצו")
+    lab_values: list[LabValue] = Field(description="ערכי מעבדה וסמנים שמופיעים במסמך")
+    follow_up: str | None = Field(description="המלצות להמשך טיפול ומעקב")
+    evidence: list[Evidence] = Field(description="ציטוט ראיה לכל שדה שאינו ריק")
 
 # ---------------------------------------------------------------------------------------------
-# Answers (backend-neutral)
+# תשובות, בפורמט שלא תלוי במימוש
 # ---------------------------------------------------------------------------------------------
 
 @dataclass
@@ -144,7 +224,7 @@ class Ans:
     score: float | None = None
 
 # ---------------------------------------------------------------------------------------------
-# Jev backends
+# המימושים של Jev
 # ---------------------------------------------------------------------------------------------
 
 class LiveJev:
@@ -212,8 +292,8 @@ def _norm(s: str) -> str:
 
 
 class DemoJev:
-    """Offline lexical stand-in for Jev. Keyword votes for Stage 1, substring/negation checks for Stage 3.
-    It exists so the notebook runs without API keys. It is NOT Jev and its numbers are not model output."""
+    """תחליף מילולי ל-Jev שרץ בלי רשת: ספירת מילות מפתח בשלב 1, וחיפוש מחרוזות ושלילות בשלב 3.
+    הוא קיים רק כדי שהמחברת תרוץ בלי מפתחות API. זה לא Jev, והמספרים שלו אינם פלט של מודל."""
 
     name = "DemoJev (heuristic stand-in)"
 
@@ -252,7 +332,7 @@ class DemoJev:
         if not nv:
             return 0.5
         if nv in nt:
-            # found verbatim: still reject when the document negates it ("ללא עדות לשבר")
+            # הערך נמצא מילה במילה, אבל עדיין נדחה אם המסמך שולל אותו ("ללא עדות לשבר")
             i = text.find(value.split()[0]) if value.split() else -1
             line_start = text.rfind("\n", 0, i) + 1 if i > 0 else 0
             if i > 0 and _NEG.search(text[max(line_start, i - 25):i]):
@@ -263,42 +343,43 @@ class DemoJev:
             return 0.3
         frac = sum(1 for t in toks if _norm(t) in nt) / len(toks)
         if frac == 1:
-            return 0.91  # every token present, not contiguous: likely a light paraphrase
-        # some tokens missing (e.g. a changed dose) -> uncertain-to-low
+            return 0.91  # כל המילים קיימות אבל לא ברצף: כנראה ניסוח מעט שונה
+        # חלק מהמילים חסרות (למשל מינון ששונה) -> ביטחון בינוני עד נמוך
         return round(0.08 + 0.6 * frac ** 2, 3)
 
 # ---------------------------------------------------------------------------------------------
-# Extraction backends
+# המימושים של החילוץ
 # ---------------------------------------------------------------------------------------------
 
 class LiveExtractor:
     name = f"Claude ({CLAUDE_MODEL})"
 
-    def __init__(self, client=None, model: str = CLAUDE_MODEL):
+    def __init__(self, client=None, model: str = CLAUDE_MODEL, lang: str | None = None):
         import anthropic
         self.client = client or anthropic.Anthropic()
         self.model = model
+        self.lang = lang
 
     def extract(self, doc: Document, doc_type: str) -> tuple[MedicalExtraction, float, dict]:
+        p = _p(self.lang)
         t0 = time.perf_counter()
         resp = self.client.messages.parse(
             model=self.model,
             max_tokens=16000,
             output_config={"effort": "low"},
-            system=EXTRACTION_SYSTEM,
-            messages=[{"role": "user", "content":
-                       f"Document type (from the classifier): {doc_type}\n\n<document>\n{doc.text}\n</document>"}],
+            system=p["extract_system"],
+            messages=[{"role": "user", "content": p["extract_user"].format(doc_type=doc_type, text=doc.text)}],
             output_format=MedicalExtraction,
         )
         dt = time.perf_counter() - t0
         if resp.stop_reason == "refusal" or resp.parsed_output is None:
-            raise RuntimeError(f"{doc.doc_id}: extraction stopped ({resp.stop_reason})")
+            raise RuntimeError(f"{doc.doc_id}: החילוץ נעצר ({resp.stop_reason})")
         usage = {"input_tokens": resp.usage.input_tokens, "output_tokens": resp.usage.output_tokens}
         return resp.parsed_output, dt, usage
 
 
 class DemoExtractor:
-    """Replays the reference extraction from ground_truth.json (what a correct extraction looks like)."""
+    """משחזר את החילוץ הנכון מתוך ground_truth.json (כך נראה חילוץ בלי טעויות)."""
     name = "DemoExtractor (reference replay)"
 
     def __init__(self, ground_truth: dict):
@@ -310,7 +391,7 @@ class DemoExtractor:
         return MedicalExtraction.model_validate(data), 0.0, {}
 
 
-# Deliberate errors for a "chaos test": shows that Stage 3 catches wrong extractions.
+# טעויות שתולות ל"מבחן כאוס": מראות ששלב 3 תופס חילוץ שגוי.
 INJECTED_ERRORS = {
     "09_ct_head_negative": {"primary_diagnosis": "שבר בעצמות הגולגולת", "icd10_code": "S02.0XXA"},
     "08_pediatric_otitis": {"medications": [{"name": "Amoxicillin", "dose": "1350 מ\"ג", "frequency": "פעמיים ביום, 10 ימים"},
@@ -325,20 +406,11 @@ def inject_error(doc_id: str, ex: MedicalExtraction) -> tuple[MedicalExtraction,
     return MedicalExtraction.model_validate({**ex.model_dump(), **patch}), list(patch)
 
 # ---------------------------------------------------------------------------------------------
-# Stage 3: verification questions (Jev)
+# שלב 3: שאלות האימות (Jev)
 # ---------------------------------------------------------------------------------------------
 
-QUALITY_LEVELS = [
-    "Mostly wrong or empty",
-    "Several important fields wrong or missing",
-    "Mostly right, one important error or omission",
-    "Right, minor omissions only",
-    "Complete and fully supported by the document",
-]
-
-
 def claims_from(ex: MedicalExtraction) -> list[tuple[str, str, str]]:
-    """(claim_key, field_label, value) for every value worth checking against the document."""
+    """(מפתח הטענה, שם השדה, הערך) לכל ערך ששווה לבדוק מול המסמך."""
     c = []
     add = lambda k, label, v: v not in (None, "", []) and c.append((k, label, str(v)))
     add("claim_patient_age", "patient_age", ex.patient_age)
@@ -352,34 +424,32 @@ def claims_from(ex: MedicalExtraction) -> list[tuple[str, str, str]]:
     return c
 
 
-def verification_questions(ex: MedicalExtraction) -> dict:
+def verification_questions(ex: MedicalExtraction, lang: str | None = None) -> dict:
+    p = _p(lang)
     qs = {}
     for key, label, value in claims_from(ex):
         qs[key] = {"type": "noul",
-                   "instructions": f"The extractor says {label} = «{value}». Is this value stated in, or directly entailed by, the document?",
-                   "criteria": {"true": "The document states this value (wording may differ slightly)",
-                                "false": "The document does not state it, states a different value, or rules it out"},
+                   "instructions": p["q_claim"].format(label=label, value=value),
+                   "criteria": {"true": p["claim_true"], "false": p["claim_false"]},
                    "_value": value}
     if ex.icd10_code:
-        qs["icd_consistent"] = {"type": "noul",
-                                "instructions": f"Is ICD-10 code {ex.icd10_code} a correct code for the main diagnosis described in the document?",
+        qs["icd_consistent"] = {"type": "noul", "instructions": p["q_icd"].format(code=ex.icd10_code),
                                 "_value": ex.icd10_code}
-    qs["extraction_quality"] = {"type": "score",
-                                "instructions": "Rate how complete and correct the extracted record (state.extracted) is against the document (state.document).",
-                                "criteria": QUALITY_LEVELS, "_values": [v for _, _, v in claims_from(ex)]}
+    qs["extraction_quality"] = {"type": "score", "instructions": p["q_quality"],
+                                "criteria": p["quality"], "_values": [v for _, _, v in claims_from(ex)]}
     return qs
 
 
 def wire(questions: dict) -> dict:
-    """Strip the demo-only helper keys before a question goes to the real API."""
+    """מסיר את מפתחות העזר של הדמו (שמתחילים ב-_) לפני שהשאלה נשלחת ל-API האמיתי."""
     return {k: {kk: vv for kk, vv in q.items() if not kk.startswith("_")} for k, q in questions.items()}
 
 # ---------------------------------------------------------------------------------------------
-# Routing
+# ניתוב
 # ---------------------------------------------------------------------------------------------
 
-ACCEPT, REVIEW = 0.90, 0.60          # field confidence thresholds
-CLASSIFY_MIN = 0.75                  # doc_type confidence below this goes to a human for triage
+ACCEPT, REVIEW = 0.90, 0.60          # ספי ביטחון לשדה: מעל ACCEPT מתקבל, מתחת ל-REVIEW נדחה
+CLASSIFY_MIN = 0.75                  # ביטחון בסיווג מתחת לסף הזה -> מיון ידני
 
 
 def field_status(p: float) -> str:
@@ -388,24 +458,24 @@ def field_status(p: float) -> str:
 
 def route(doc_type: Ans, field_conf: dict[str, float]) -> tuple[str, str]:
     if doc_type.confidence is not None and doc_type.confidence < CLASSIFY_MIN:
-        return "human_triage", f"classification confidence {doc_type.confidence:.2f} < {CLASSIFY_MIN}"
+        return "human_triage", f"ביטחון בסיווג {doc_type.confidence:.2f} < {CLASSIFY_MIN}"
     if doc_type.choice == "administrative":
-        return "archive", "non-clinical document, no extraction"
+        return "archive", "מסמך לא קליני, בלי חילוץ"
     worst = min(field_conf.values()) if field_conf else 1.0
     if worst < REVIEW:
         bad = [k for k, v in field_conf.items() if v < REVIEW]
-        return "human_review", "rejected fields: " + ", ".join(bad)
+        return "human_review", "שדות שנדחו: " + ", ".join(bad)
     if worst < ACCEPT:
-        return "quick_review", f"lowest field confidence {worst:.2f}"
-    return "auto_accept", f"all fields >= {ACCEPT}"
+        return "quick_review", f"הביטחון הנמוך ביותר בשדה: {worst:.2f}"
+    return "auto_accept", f"כל השדות ≥ {ACCEPT}"
 
 # ---------------------------------------------------------------------------------------------
-# Orchestration
+# הרצת התהליך
 # ---------------------------------------------------------------------------------------------
 
-def run_document(doc: Document, jev, extractor, inject: bool = False) -> dict:
+def run_document(doc: Document, jev, extractor, inject: bool = False, lang: str | None = None) -> dict:
     is_demo = isinstance(jev, DemoJev)
-    q1 = classification_questions()
+    q1 = classification_questions(lang)
     a1, t1, u1 = jev.ask(doc.text, q1 if is_demo else wire(q1))
     rec = {"doc_id": doc.doc_id, "classification": {k: vars(v) for k, v in a1.items()},
            "latency_s": {"classify": t1}, "jev_usage": [u1]}
@@ -420,7 +490,7 @@ def run_document(doc: Document, jev, extractor, inject: bool = False) -> dict:
     rec.update(extraction=ex.model_dump(), injected_fields=injected, claude_usage=usage)
     rec["latency_s"]["extract"] = t2
 
-    q3 = verification_questions(ex)
+    q3 = verification_questions(ex, lang)
     state = {"document": doc.text, "extracted": ex.model_dump(exclude={"evidence"})}
     a3, t3, u3 = jev.ask(state, q3 if is_demo else wire(q3))
     rec["latency_s"]["verify"] = t3
@@ -437,24 +507,24 @@ def run_document(doc: Document, jev, extractor, inject: bool = False) -> dict:
     return rec
 
 
-def run_all(docs: list[Document], jev, extractor, inject: bool = False) -> list[dict]:
-    return [run_document(d, jev, extractor, inject) for d in docs]
+def run_all(docs: list[Document], jev, extractor, inject: bool = False, lang: str | None = None) -> list[dict]:
+    return [run_document(d, jev, extractor, inject, lang) for d in docs]
 
 
-def make_backends(mode: str | None = None):
-    """mode: 'live', 'demo', or None = live when both API keys are present, else demo."""
+def make_backends(mode: str | None = None, lang: str | None = None):
+    """mode: 'live', 'demo', או None = live אם שני מפתחות ה-API מוגדרים, אחרת demo."""
     if mode is None:
         mode = "live" if os.environ.get("TYPESAFE_API_KEY") and os.environ.get("ANTHROPIC_API_KEY") else "demo"
     if mode == "live":
-        return mode, LiveJev(), LiveExtractor()
+        return mode, LiveJev(), LiveExtractor(lang=lang)
     return mode, DemoJev(), DemoExtractor(load_ground_truth())
 
 # ---------------------------------------------------------------------------------------------
-# Cost (published list prices; check current pricing before relying on them)
+# עלות (לפי המחירונים שפורסמו; כדאי לבדוק את המחיר העדכני לפני שמסתמכים על זה)
 # ---------------------------------------------------------------------------------------------
 
 PRICE_PER_MTOK = {"claude_in": 4.00, "claude_out": 20.00,   # Claude Opus 5.5
-                  "jev_in": 0.042, "jev_out": 0.0}           # Jev: input only, output free (TypeSafe)
+                  "jev_in": 0.042, "jev_out": 0.0}           # Jev: רק קלט, הפלט חינם (לפי TypeSafe)
 
 
 def cost_usd(results: list[dict]) -> dict:
@@ -467,12 +537,12 @@ def cost_usd(results: list[dict]) -> dict:
             "claude_usd": round(claude, 5), "jev_usd": round(jev, 6)}
 
 # ---------------------------------------------------------------------------------------------
-# Evaluation against ground truth
+# הערכה מול קובץ הייחוס
 # ---------------------------------------------------------------------------------------------
 
 def evaluate(results: list[dict], gt: dict) -> dict:
-    """Classification accuracy, plus how well Stage 3 separates wrong fields from right ones.
-    A field counts as wrong when its value differs from the reference extraction's value for the same claim."""
+    """דיוק הסיווג, ועד כמה שלב 3 מפריד בין שדות שגויים לשדות נכונים.
+    שדה נחשב שגוי כשהערך שלו שונה מהערך של אותה טענה בחילוץ הייחוס."""
     n = len(results)
     type_ok = sum(r["classification"]["doc_type"]["choice"] == gt[r["doc_id"]]["doc_type"] for r in results)
     spec_ok = sum(r["classification"]["specialty"]["choice"] == gt[r["doc_id"]]["specialty"] for r in results)

@@ -17,13 +17,65 @@
 | `assets/typesafe-mark.svg` | סמל TypeSafe |
 | `SOURCES.md` | מקורות לכל נתון בסרטון |
 
-## בנייה מחדש
+## בנייה מחדש, שלב אחרי שלב
 
+### מה צריך
+- Python 3.10 ומעלה, Node.js 20 ומעלה, ו-ffmpeg
+- Chromium (או Chrome). ‏`render.mjs` מחפש אותו ב-`/opt/pw-browsers`; אפשר להגדיר נתיב אחר במשתנה הסביבה `CHROMIUM`.
+
+### שלב 1: הכנת הקריינות (פעם אחת)
 ```sh
-# קול (פעם אחת: python -m venv tts/.venv && pip install israwave nakdimon-onnx soundfile,
-# ולהוריד את israwave.onnx, nakdimon.onnx ו-espeak-ng-data מ-github.com/thewh1teagle/israwave/releases/tag/v0.1.0 לתיקייה tts/)
-cd tts && .venv/bin/python gen_voice.py ../narration.json ../build/voice && cd ..
-tts/.venv/bin/python build_timeline.py      # תזמון, מיקס קול ומוזיקה
-npm i && node render.mjs                     # out/jev-explainer.mp4
-node render.mjs --stills 30 66 108           # תמונות בדיקה ב-build/stills
+cd jev-video/tts
+python -m venv .venv
+.venv/bin/pip install israwave nakdimon-onnx soundfile numpy
+
+# מודל הקול, מודל הניקוד ונתוני ההגייה
+for f in israwave.onnx nakdimon.onnx espeak-ng-data.tar.gz; do
+  curl -LO https://github.com/thewh1teagle/israwave/releases/download/v0.1.0/$f
+done
+tar xzf espeak-ng-data.tar.gz
 ```
+
+### שלב 2: יצירת הקריינות
+```sh
+cd jev-video/tts
+.venv/bin/python gen_voice.py ../narration.json ../build/voice
+# אפשר לייצר מחדש רק סצנות מסוימות:
+.venv/bin/python gen_voice.py ../narration.json ../build/voice intro outro
+```
+כדי לשנות את מה שנאמר, עורכים את `narration.json`. שמות לועזיים שנהגים לא נכון מתקנים במילון `FIX` שבתוך `gen_voice.py`.
+
+### שלב 3 (לא חובה): בדיקה שהקריינות מובנת
+```sh
+curl -L https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-whisper-small.tar.bz2 | tar xj
+.venv/bin/pip install sherpa-onnx
+.venv/bin/python asr.py ../build/voice/*.wav     # מדפיס תמלול של כל סצנה
+```
+
+### שלב 4: תזמון ומיקס
+```sh
+cd jev-video
+tts/.venv/bin/python build_timeline.py
+```
+הסקריפט מסנכרן את הסצנות לאורך הקריינות, מייצר מוזיקה באורך המדויק, מנמיך אותה כשיש דיבור, ושומר את `build/mix.wav` ואת `build/timeline.js`.
+
+### שלב 5: רינדור
+```sh
+cd jev-video
+npm install
+node render.mjs --stills 30 66 108     # כמה תמונות לבדיקה, ב-build/stills/
+node render.mjs                        # הסרטון המלא -> out/jev-explainer.mp4 (כ-7 דקות)
+```
+
+### שינוי העיצוב
+- **הסצנות:** כל הטקסט והמבנה ב-`web/index.html`, והאנימציה ב-`web/scenes.js`. התזמון של כל אנימציה צמוד לשורת הקריינות שלה, כך ששינוי בקריינות מזיז את האנימציה אוטומטית.
+- **צבעים:** משתני ה-CSS בראש `web/index.html` (`--pink`, `--bg` וכו').
+- **הלוגו:** `assets/typesafe-mark.svg`. הוא נלקח מחבילות קהילה ב-npm, כי האתר הרשמי היה חסום בסביבה שבה הסרטון נבנה. כדאי לוודא אותו מול ערכת המותג הרשמית.
+
+## המצגות
+```sh
+cd jev-video/deck
+python3 build_deck.py            # המצגת הבסיסית  -> out/project/
+python3 build_deck_extended.py   # המצגת המורחבת -> out_extended/project/
+```
+התוכן של כל שקף, כולל הערות הדובר, נמצא בקבצים האלה. הטקסט העברי נעטף בתווי כיווניות (RLI/PDI), כי לפורמט השקפים אין הגדרת כיוון.

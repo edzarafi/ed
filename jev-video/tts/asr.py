@@ -1,3 +1,6 @@
+"""מתמלל קבצי שמע בעזרת Whisper (sherpa-onnx), כדי לבדוק שהקריינות מובנת.
+
+הרצה:  .venv/bin/python asr.py קובץ1.wav [קובץ2.wav ...]"""
 import sys, sherpa_onnx, soundfile as sf, numpy as np
 d="sherpa-onnx-whisper-small/"
 rec = sherpa_onnx.OfflineRecognizer.from_whisper(encoder=d+"small-encoder.int8.onnx", decoder=d+"small-decoder.int8.onnx", tokens=d+"small-tokens.txt", language="he", task="transcribe", num_threads=4)

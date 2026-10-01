@@ -1,3 +1,14 @@
+# תהליך המסמכים הרפואיים: Jev מסווג, Claude מחלץ, Jev מאמת.
+#
+# מתי זה רץ:
+#   - בכל push או pull request שנוגעים בתיקייה jev-docs-pipeline/  -> טסטים + הרצת המחברת במצב demo (בלי מפתחות).
+#   - הפעלה ידנית (Actions -> jev-medical-pipeline -> Run workflow) -> אפשר לבחור demo או live, ואת שפת ההנחיות.
+#
+# להרצת live צריך להגדיר שני secrets במאגר (Settings -> Secrets and variables -> Actions):
+#   TYPESAFE_API_KEY   מפתח של TypeSafe AI (בשביל Jev)
+#   ANTHROPIC_API_KEY  מפתח של Anthropic (בשביל Claude)
+#
+# התוצאות (המחברת אחרי הרצה + outputs/) נשמרות כ-artifact של ההרצה, להורדה מדף ההרצה.
 name: jev-medical-pipeline
 
 on:
@@ -8,33 +19,45 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "demo (offline) or live (needs TYPESAFE_API_KEY and ANTHROPIC_API_KEY secrets)"
+        description: "מצב הרצה: demo (בלי רשת) או live (דורש את ה-secrets TYPESAFE_API_KEY ו-ANTHROPIC_API_KEY)"
         type: choice
         options: [demo, live]
         default: demo
+      prompt_lang:
+        description: "שפת ההנחיות למודלים: he (עברית) או en (אנגלית)"
+        type: choice
+        options: [he, en]
+        default: he
 
 jobs:
   run:
+    name: טסטים והרצת המחברת
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: jev-docs-pipeline
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: הורדת הקוד
+        uses: actions/checkout@v4
+      - name: התקנת Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r requirements.txt
-      - run: python -m pytest -q tests
-      - name: Execute notebook
+      - name: התקנת תלויות
+        run: pip install -r requirements.txt
+      - name: הרצת הטסטים
+        run: python -m pytest -q tests
+      - name: הרצת המחברת
         env:
           MODE: ${{ inputs.mode || 'demo' }}
+          PROMPT_LANG: ${{ inputs.prompt_lang || 'he' }}
           TYPESAFE_API_KEY: ${{ inputs.mode == 'live' && secrets.TYPESAFE_API_KEY || '' }}
           ANTHROPIC_API_KEY: ${{ inputs.mode == 'live' && secrets.ANTHROPIC_API_KEY || '' }}
-        run: jupyter nbconvert --to notebook --execute jev_medical_pipeline.ipynb --output executed_${MODE}.ipynb
-      - uses: actions/upload-artifact@v4
+        run: jupyter nbconvert --to notebook --execute jev_medical_pipeline.ipynb --output executed_${MODE}_${PROMPT_LANG}.ipynb
+      - name: שמירת התוצאות
+        uses: actions/upload-artifact@v4
         with:
-          name: pipeline-results-${{ inputs.mode || 'demo' }}
+          name: pipeline-results-${{ inputs.mode || 'demo' }}-${{ inputs.prompt_lang || 'he' }}
           path: |
             jev-docs-pipeline/executed_*.ipynb
             jev-docs-pipeline/outputs/

@@ -1,6 +1,6 @@
-// Render web/index.html frame-by-frame with headless Chromium and encode with ffmpeg.
-//   node render.mjs                -> out/jev-explainer.mp4
-//   node render.mjs --stills 3 12  -> build/stills/t003.00.png ... (quick visual checks)
+// מרנדר את web/index.html פריים אחרי פריים ב-Chromium ומקודד ב-ffmpeg.
+//   node render.mjs                -> out/jev-explainer.mp4  (הסרטון המלא)
+//   node render.mjs --stills 3 12  -> build/stills/t003.00.png ...  (תמונות לבדיקה מהירה)
 import { chromium } from "playwright-core";
 import { spawn } from "node:child_process";
 import { mkdirSync, existsSync } from "node:fs";

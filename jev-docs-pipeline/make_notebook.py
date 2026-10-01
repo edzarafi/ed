@@ -1,4 +1,9 @@
-"""Builds jev_medical_pipeline.ipynb. Run: python make_notebook.py && jupyter nbconvert --execute --inplace jev_medical_pipeline.ipynb"""
+"""בונה את המחברת jev_medical_pipeline.ipynb.
+
+הרצה:
+    python make_notebook.py
+    jupyter nbconvert --to notebook --execute --inplace jev_medical_pipeline.ipynb
+"""
 import nbformat as nbf
 
 nb = nbf.v4.new_notebook()
@@ -23,6 +28,32 @@ md(RTL.format("""# Jev + Claude: סיווג, חילוץ ואימות של מסמ
 
 > ⚠️ כל המסמכים בתיקייה `documents/` סינתטיים ובדויים. זה לא כלי קליני ואין להשתמש בו לקבלת החלטות רפואיות."""
 )),
+md(RTL.format("""## הכנה להרצה
+
+**1. התקנה (פעם אחת)**
+```
+cd jev-docs-pipeline
+pip install -r requirements.txt
+```
+
+**2. מפתחות API (רק למצב live)**
+- **Jev:** מפתח מ-TypeSafe AI, במשתנה הסביבה `TYPESAFE_API_KEY`.
+- **Claude:** מפתח מ-Anthropic Console, במשתנה הסביבה `ANTHROPIC_API_KEY`.
+
+```
+export TYPESAFE_API_KEY=...
+export ANTHROPIC_API_KEY=...
+```
+בלי שני המפתחות, המחברת רצה אוטומטית במצב demo.
+
+**3. ב-Google Colab**
+מעלים את התיקייה `jev-docs-pipeline` (או משכפלים את המאגר), מריצים את שורת ה-`%pip install` בתא הבא, ושומרים את המפתחות ב-Secrets של Colab. אחר כך טוענים אותם ל-`os.environ` לפני שמריצים את התא.
+
+**4. הגדרות בתא הבא**
+- `MODE`: ‏`None` (אוטומטי), `"live"` או `"demo"`.
+- `PROMPT_LANG`: שפת ההנחיות למודלים, `"he"` (ברירת מחדל) או `"en"`. מומלץ להריץ live בשתי השפות ולהשוות את ההערכה בסוף המחברת.
+- `INJECT_ERRORS`: מפעיל או מכבה את מבחן הכאוס."""
+)),
 code("""# בהרצה ב-Colab או בסביבה חדשה:
 # %pip install -q typesafe-sdk anthropic pydantic pandas
 import os, json
@@ -30,11 +61,13 @@ import pandas as pd
 import pipeline as P
 
 pd.set_option("display.max_colwidth", 80)
-MODE = None            # None = live אם שני המפתחות מוגדרים, אחרת demo. אפשר לכפות "live" או "demo"
+# אפשר לקבוע את שתי ההגדרות גם במשתני סביבה (כך עושה ה-workflow ב-GitHub)
+MODE = os.environ.get("MODE") or None            # None = live אם שני המפתחות מוגדרים, אחרת demo. אפשר לכפות "live" או "demo"
+PROMPT_LANG = os.environ.get("PROMPT_LANG", "he")  # שפת ההנחיות למודלים: "he" או "en"
 INJECT_ERRORS = True   # מבחן כאוס: שותל 2 טעויות חילוץ כדי לראות ששלב 3 תופס אותן
 
-mode, jev, extractor = P.make_backends(MODE)
-print(f"mode: {mode}\\nstage 1+3: {jev.name}\\nstage 2:   {extractor.name}")"""),
+mode, jev, extractor = P.make_backends(MODE, lang=PROMPT_LANG)
+print(f"מצב: {mode}\\nשפת ההנחיות: {PROMPT_LANG}\\nשלבים 1+3: {jev.name}\\nשלב 2:     {extractor.name}")"""),
 md(RTL.format("""## המסמכים
 
 11 מסמכים סינתטיים מ-10 סוגים, כל אחד עם אבחנה אחרת. שניים מהם קשים במיוחד:
@@ -52,12 +85,13 @@ md(RTL.format("""## מעבר מלא על מסמך אחד: `09_ct_head_negative`
 ### שלב 1: Jev מסווג
 ארבע שאלות נשלחות בקריאה אחת, ו-Jev עונה על כולן במקביל:"""
 )),
-code("""for name, q in P.classification_questions().items():
+code("""# השאלות שנשלחות ל-Jev בשלב 1
+for name, q in P.classification_questions(PROMPT_LANG).items():
     crit = q.get("criteria")
     shown = list(crit) if isinstance(crit, dict) else crit
     print(f"{name:13} [{q['type']}] {q['instructions']}\\n{'':16}{shown}\\n")"""),
 code("""doc = next(d for d in docs if d.doc_id == "09_ct_head_negative")
-q1 = P.classification_questions()
+q1 = P.classification_questions(PROMPT_LANG)
 a1, t1, _ = jev.ask(doc.text, q1 if mode == "demo" else P.wire(q1))
 for k, a in a1.items():
     if a.type == "choice":
@@ -66,19 +100,20 @@ for k, a in a1.items():
         print(f"{k:13} score={a.score:.2f}/4         confidence={a.confidence:.2f}")
     else:
         print(f"{k:13} p(yes)={a.noul:.2f}")
-print(f"latency: {t1*1000:.0f} ms")"""),
+print(f"זמן תגובה: {t1*1000:.0f} ms")"""),
 md(RTL.format("""### שלב 2: Claude מחלץ שדות לפי סכמה
 Claude מקבל את המסמך ואת הסוג שזוהה בשלב 1, ומחזיר אובייקט `MedicalExtraction` (Pydantic) דרך structured outputs. כך הפורמט מובטח. כשמבחן הכאוס פעיל, נשתלת כאן בכוונה טעות: "שבר בגולגולת" במקום "ללא עדות לשבר"."""
 )),
 code("""ex, t2, usage = extractor.extract(doc, a1["doc_type"].choice)
 if INJECT_ERRORS:
     ex, injected = P.inject_error(doc.doc_id, ex)
-    print("injected (deliberate) errors in:", injected)
+    print("טעויות שתולות (בכוונה) בשדות:", injected)
 print(json.dumps(ex.model_dump(exclude={"evidence"}), ensure_ascii=False, indent=1))"""),
 md(RTL.format("""### שלב 3: Jev מאמת כל שדה
 לכל ערך שחולץ נשאלת שאלת כן/לא: "האם המסמך אומר את זה?". ההסתברות שחוזרת היא ה-confidence של השדה. בנוסף נבדק אם קוד ה-ICD מתאים לאבחנה, ומתקבל ציון איכות כולל לחילוץ (Score, ‏0–4)."""
 )),
-code("""q3 = P.verification_questions(ex)
+code("""# שאלות האימות: אחת לכל שדה שחולץ, ועוד שתיים על המסמך כולו
+q3 = P.verification_questions(ex, PROMPT_LANG)
 for k, q in q3.items():
     print(f"{k:24} [{q['type']}] {q['instructions'][:110]}")"""),
 code("""state = {"document": doc.text, "extracted": ex.model_dump(exclude={"evidence"})}
@@ -88,7 +123,7 @@ rows = [{"field": label, "value": value, "confidence": round(a3[k].noul, 3), "st
 print(f"icd_consistent p={a3['icd_consistent'].noul:.2f}   extraction_quality={a3['extraction_quality'].score:.1f}/4")
 pd.DataFrame(rows)"""),
 code("""route, reason = P.route(a1["doc_type"], {r["field"]: r["confidence"] for r in rows})
-print(f"route: {route}  ({reason})")"""),
+print(f"ניתוב: {route}  ({reason})")"""),
 md(RTL.format("""## הרצה על כל המסמכים
 
 ספי הניתוב (ב-`pipeline.py`):
@@ -96,7 +131,7 @@ md(RTL.format("""## הרצה על כל המסמכים
 - **שדה:** מעל 0.90 מתקבל אוטומטית; בין 0.60 ל-0.90 עובר לבדיקה מהירה; מתחת ל-0.60 נדחה.
 - **מסמך מנהלי:** עובר לארכיון בלי חילוץ."""
 )),
-code("""results = P.run_all(docs, jev, extractor, inject=INJECT_ERRORS)
+code("""results = P.run_all(docs, jev, extractor, inject=INJECT_ERRORS, lang=PROMPT_LANG)
 pd.DataFrame([{
     "doc_id": r["doc_id"],
     "type": r["classification"]["doc_type"]["choice"],
@@ -121,9 +156,9 @@ display((lat * 1000).round(0).rename(index={"50%": "p50"}).add_suffix(" (ms)"))
 P.cost_usd(results)"""),
 code("""os.makedirs("outputs", exist_ok=True)
 out = f"outputs/results_{mode}.json"
-json.dump({"mode": mode, "inject_errors": INJECT_ERRORS, "results": results, "evaluation": {**ev, "wrong_fields": wrong},
+json.dump({"mode": mode, "prompt_lang": PROMPT_LANG, "inject_errors": INJECT_ERRORS, "results": results, "evaluation": {**ev, "wrong_fields": wrong},
            "cost": P.cost_usd(results)}, open(out, "w"), ensure_ascii=False, indent=1, default=str)
-print("saved", out)"""),
+print("נשמר:", out)"""),
 md(RTL.format("""## הערות ומגבלות
 - **עברית:** לא מצאתי תיעוד שמאשר שהביצועים של Jev בעברית זהים לאנגלית. לפני שימוש אמיתי צריך להריץ במצב live ולבדוק את ההערכה למעלה.
 - **הספים:** 0.90, 0.60 ו-0.75 הם נקודת התחלה. כדאי לכייל אותם על נתונים אמיתיים, לפי מחיר הטעות בכל שדה. למשל, מינון תרופה מצדיק סף מחמיר יותר מתאריך.
